@@ -609,11 +609,11 @@ OBFUSCXX_HASH(__FILE__) + \
 #if defined(__clang__) || defined(__GNUC__)
 template<typename CharType, CharType... chars> constexpr auto operator""_obf() {
     constexpr CharType str[] = {chars..., '\0'};
-    return obfuscxx(str).to_string();
+    return ngu::bfuscxx(str).to_string();
 }
 #endif
 
-#define obfusv(val) obfuscxx(val).get()
-#define obfuss(str) obfuscxx(str).to_string().c_str()
+#define obfusv(val) ngu::obfuscxx(val).get()
+#define obfuss(str) ngu::obfuscxx(str).to_string().c_str()
 
 #endif // NGU_OBFUSCXX_H
