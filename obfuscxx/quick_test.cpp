@@ -1,4 +1,6 @@
-﻿#include "metrics/unit_test.h"
+﻿#include <iostream>
+
+#include "metrics/unit_test.h"
 #include "metrics/benchmark.h"
 
 int main(int argc, char** argv) {
