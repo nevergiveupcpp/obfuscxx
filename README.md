@@ -135,4 +135,4 @@ int main() {
 - Linux
 
 ## License
-**obfuscxx** is distributed under the [MIT license](LICENSE).
+**obfuscxx** is distributed under the [Apache License 2.0](LICENSE).
