@@ -137,6 +137,30 @@ static void BM_ArrayIteration_High(benchmark::State& state) {
 }
 BENCHMARK(BM_ArrayIteration_High);
 
+static void BM_ArrayCopyTo_Low(benchmark::State& state) {
+    obfuscxx<int, 100, obf_level::Low> array{};
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(array.to_array());
+    }
+}
+BENCHMARK(BM_ArrayCopyTo_Low);
+
+static void BM_ArrayCopyTo_Medium(benchmark::State& state) {
+    obfuscxx<int, 100, obf_level::Medium> array{};
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(array.to_array());
+    }
+}
+BENCHMARK(BM_ArrayCopyTo_Medium);
+
+static void BM_ArrayCopyTo_High(benchmark::State& state) {
+    obfuscxx<int, 100, obf_level::High> array{};
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(array.to_array());
+    }
+}
+BENCHMARK(BM_ArrayCopyTo_High);
+
 static void BM_ArrayGet_Low(benchmark::State& state) {
     obfuscxx<int, 100, obf_level::Low> array{};
     for (auto _ : state) {
