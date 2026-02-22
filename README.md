@@ -8,9 +8,18 @@
 Header-only compile-time variables obfuscation library for C++20 and later.
 
 ## How it works
-During compilation, data is encrypted via eXtended Tiny Encryption Algorithm (XTEA). Decryption uses SIMD instructions (AVX/SSE/NEON) at runtime, making static analysis considerably more complicated. Key entropy is based on the preprocessor macro `__COUNTER__`, the file name(`__FILE__`), and the line number (`__LINE__`) where the variable is defined, and the build time (`__TIME__`) (note: build time is not included when compiling with WDM).
+During compilation, data is encrypted via eXtended Tiny Encryption Algorithm (XTEA). Decryption uses SIMD instructions (AVX2/SSE2/NEON) at runtime, making static analysis considerably more complicated. Key entropy is based on the preprocessor macro `__COUNTER__`, the file name(`__FILE__`), and the line number (`__LINE__`) where the variable is defined, and the build time (`__TIME__`) (note: build time is not included when compiling with WDM).
 
-By selecting different encryption levels (Low, Medium, High), you can control the number of encryption rounds. With Low, there are 2 rounds; Medium uses 6; and High adjusts the number of rounds dynamically based on the key entropy, ranging from 6 to 20. This lets you apply lighter encryption to frequently accessed data, and stronger encryption to data that’s used less often.
+By selecting different encryption levels (Low, Medium, High), you can control the number of encryption rounds. With Low, there are 2 rounds; Medium uses 6; and High adjusts the number of rounds dynamically based on the key entropy, ranging from 8 to 32. This lets you apply lighter encryption to frequently accessed data, and stronger encryption to data that’s used less often.
+
+### Why XTEA?
+XTEA was chosen for several reasons. The primary one is its solid cryptographic strength combined with a minimal algorithm footprint (yes, “cryptographic strength” is somewhat overstated here - the keys and the algorithm itself are visible, the goal here is making analysis more difficult, not cryptographic security). Additionally, XTEA operates on 64-bit blocks, which maps perfectly to a single scalar — one block corresponds to one protected value.
+
+### SIMD for obfuscation
+When working with scalar data, SIMD instructions are used not for vectorization, but to complicate static analysis, data extraction, and emulation-based deobfuscation. For vector data (arrays, strings), SIMD is used to its full potential, enabling parallel decryption without compromising protection quality.
+
+### SIMD platform support
+The library supports multiple SIMD instruction sets depending on the target architecture and compiler flags. On MSVC, SSE2 is used as a fallback by default, this ensures compatibility with both older and newer processors. If support for older processors is not required, define the OBFUSCXX_MSVC_FORCE_AVX2 macro.
 
 ## Decompilation view
 The screenshots show only a small portion of the int main() function. In reality, the function can grow to around 250 lines depending on the compiler.
@@ -22,41 +31,12 @@ The screenshots show only a small portion of the int main() function. In reality
 <td><img src="images/gcc.png" width="400"/></td>
 </tr>
 </table>
-<p align="center"><em>MSVC, LLVM, GCC compilation (int main(), Level: Low, Arch: x86-64)</em></p>
-
-## Benchmarks
-### Runtime performance impact
-| Operation | MSVC | LLVM | GCC |
-|-----------|------|------|-----|
-| **Integer Operations (Low)** | 3.62 ns | **3.31 ns** ✓ | 4.65 ns (1.4x) |
-| **Integer Operations (Medium)** | 10.7 ns (3.0x) | **10.3 ns (3.1x)** ✓ | 17.2 ns (3.7x) |
-| **Integer Operations (High)** | 48.3 ns (13.3x) | **41.0 ns (12.4x)** ✓ | 56.1 ns (12.1x) |
-| **Float Operations (Low)** | 3.40 ns | **3.26 ns** ✓ | 4.22 ns (1.3x) |
-| **Float Operations (Medium)** | 10.8 ns (3.2x) | **10.9 ns (3.3x)** | 16.5 ns (3.9x) |
-| **Float Operations (High)** | 46.7 ns (13.7x) | **42.0 ns (12.9x)** ✓ | 56.9 ns (13.5x) |
-| **String Operations (Low)** | 36.8 ns | **31.9 ns** ✓ | 43.0 ns (1.3x) |
-| **String Operations (Medium)** | 116 ns (3.2x) | **104 ns (3.3x)** ✓ | 174 ns (4.0x) |
-| **String Operations (High)** | 495 ns (13.5x) | **429 ns (13.4x)** ✓ | 538 ns (12.5x) |
-| **Wide String Operations (Low)** | 31.8 ns | **31.4 ns** ✓ | 47.5 ns (1.5x) |
-| **Wide String Operations (Medium)** | 112 ns (3.5x) | **106 ns (3.4x)** ✓ | 172 ns (3.6x) |
-| **Wide String Operations (High)** | 503 ns (15.8x) | **417 ns (13.3x)** ✓ | 547 ns (11.5x) |
-| **Array Iteration (100 elements, Low)** | 401 ns | **344 ns** ✓ | 436 ns (1.3x) |
-| **Array Iteration (100 elements, Medium)** | 1,136 ns (2.8x) | **1,079 ns (3.1x)** ✓ | 1,795 ns (4.1x) |
-| **Array Iteration (100 elements, High)** | 5,114 ns (12.8x) | **4,284 ns (12.5x)** ✓ | 5,416 ns (12.4x) |
-| **Array Element Access (Low)** | 3.32 ns | **3.21 ns** ✓ | 4.38 ns (1.4x) |
-| **Array Element Access (Medium)** | 11.3 ns (3.4x) | **10.2 ns (3.2x)** ✓ | 17.5 ns (4.0x) |
-| **Array Element Access (High)** | 49.8 ns (15.0x) | **41.6 ns (13.0x)** ✓ | 56.3 ns (12.9x) |
-
-### Test environment
-- CPU: 16 cores @ 2496 MHz
-- L1 Data Cache: 48 KiB (x8)
-- L1 Instruction Cache: 32 KiB (x8)
-- L2 Unified Cache: 512 KiB (x8)
-- L3 Unified Cache: 16384 KiB (x1)
-- Date: 2025-11-04
+<p align="center"><em>MSVC, LLVM, GCC compilation (int main(), Level: Low, Arch: x86-64, SIMD Insn: AVX2, SSE2)</em></p>
 
 ## Installation
 Just add the header file to your project - `#include "include/obfuscxx.h"`
+
+> To disable the SSE2 fallback on MSVC, define `OBFUSCXX_MSVC_FORCE_AVX2` before including the header or in your CMakeLists.txt.
 
 ## Examples
 ### Basic
@@ -106,6 +86,44 @@ int main() {
     std::cout << obfuss("Hello, World!") << '\n';
 }
 ```
+
+## Benchmarks
+
+> Benchmark results may vary depending on compiler flags and the toolchain used. The results below were obtained using the configuration available in [CMakeLists.txt](CMakeLists.txt).
+
+### Runtime performance impact
+| Operation | MSVC | LLVM | GCC |
+|-----------|------|------|-----|
+| **Integer Get (Low)** | 4.61 ns | **4.24 ns** | 4.99 ns |
+| **Integer Get (Medium)** | 22.5 ns | **13.5 ns** | 15.6 ns |
+| **Integer Get (High)** | 57.3 ns | **51.5 ns** | 62.4 ns |
+| **Float Get (Low)** | 4.93 ns | **4.08 ns** | 4.35 ns |
+| **Float Get (Medium)** | 22.8 ns | **12.9 ns** | 15.1 ns |
+| **Float Get (High)** | 56.0 ns | **48.1 ns** | 60.9 ns |
+| **String Get (Low)** | 12.0 ns | **7.62 ns** | 13.7 ns |
+| **String Get (Medium)** | **24.5 ns** | 28.6 ns | 30.3 ns |
+| **String Get (High)** | 68.7 ns | 102 ns | **62.9 ns** |
+| **Wide String Get (Low)** | 12.7 ns | **7.57 ns** | 11.7 ns |
+| **Wide String Get (Medium)** | **28.3 ns** | 30.3 ns | 31.6 ns |
+| **Wide String Get (High)** | 70.2 ns | 101 ns | **63.7 ns** |
+| **Array Iteration (100 elem, Low)** | 483 ns | 445 ns | **443 ns** |
+| **Array Iteration (100 elem, Medium)** | 2,348 ns | **1,342 ns** | 1,607 ns |
+| **Array Iteration (100 elem, High)** | 5,553 ns | **4,640 ns** | 5,887 ns |
+| **Array CopyTo (100 elem, Low)** | 91.9 ns | **66.5 ns** | 89.8 ns |
+| **Array CopyTo (100 elem, Medium)** | 201 ns | **185 ns** | 225 ns |
+| **Array CopyTo (100 elem, High)** | 477 ns | 642 ns | **417 ns** |
+| **Array Element Access (Low)** | 4.99 ns | **4.23 ns** | 4.78 ns |
+| **Array Element Access (Medium)** | 23.4 ns | **13.5 ns** | 15.8 ns |
+| **Array Element Access (High)** | 56.8 ns | **51.8 ns** | 60.4 ns |
+
+### Test environment
+- CPU: 16 cores @ 2496 MHz
+- L1 Data Cache: 48 KiB (x8)
+- L1 Instruction Cache: 32 KiB (x8)
+- L2 Unified Cache: 512 KiB (x8)
+- L3 Unified Cache: 16384 KiB (x1)
+- Date: 2026-02-22
+
 ## Building tests and benchmarks
 1. Install `vcpkg` and set `VCPKG_ROOT` environment variable
 2. Fetch baseline: `cd $VCPKG_ROOT && git fetch origin 34823ada10080ddca99b60e85f80f55e18a44eea`
@@ -114,25 +132,27 @@ int main() {
 
 ## Requirements
 - C++20 or later
-- Compiler with SIMD support (AVX/SSE/NEON)
+- Compiler with SIMD support (SSE2/AVX2/NEON)
 - CMake 3.15+ (for building tests)
 - vcpkg (for dependencies)
 
 ## Platform Support
+> Although the library supports multiple architectures and compilers, there are some caveats. NEON instructions on ARM64 are aggressively optimized by the compiler regardless of attempts to prevent it. While constants remain encrypted, the decryption process itself may be simplified by the optimizer into plain scalar operations, reducing the effectiveness of the obfuscation. Due to limited testing on ARM64, the quality of obfuscation on this architecture has not been fully validated. If you are using the library on a NEON-based platform, it is recommended to manually inspect the generated code.
 
 ### Compilers
 - MSVC (+ WDM)
-- Clang
 - GCC
+- Clang
 
 ### Architectures
-- x86 (SSE/SSE2)
-- x86-64 (SSE/AVX)
+- x86 (SSE2/AVX2)
+- x86-64 (SSE2/AVX2)
 - ARM64 (NEON)
 
 ### Operating Systems
 - Windows
 - Linux
+- MacOS
 
 ## License
 **obfuscxx** is distributed under the [Apache License 2.0](LICENSE).
