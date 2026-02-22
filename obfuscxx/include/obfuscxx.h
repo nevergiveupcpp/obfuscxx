@@ -231,7 +231,7 @@ OBFUSCXX_HASH(__FILE__) + \
         static constexpr std::uint64_t unique_value = iv[unique_index];
 
         static constexpr std::uint32_t xtea_rounds =
-                (Level == obf_level::Low) ? 2 : (Level == obf_level::Medium) ? 6 : (6 + ((unique_index & 0x7) * 2));
+                (Level == obf_level::Low) ? 2 : (Level == obf_level::Medium) ? 6 : (8 + ((unique_value % 13) * 2));
 
         static constexpr std::uint32_t xtea_delta = (0x9E3779B9 ^ static_cast<std::uint32_t>(unique_value)) | 1;
 
@@ -266,24 +266,13 @@ OBFUSCXX_HASH(__FILE__) + \
 
         template<typename Vec> static OBFUSCXX_FORCEINLINE Type decrypt_scalar(std::uint32_t v0, std::uint32_t v1) {
             using S = simd<Vec>;
-            std::uint32_t sum = xtea_delta * xtea_rounds;
+            auto sv0 = S::from_scalar(v0);
+            auto sv1 = S::from_scalar(v1);
 
-            for (std::uint32_t i{}; i < xtea_rounds; ++i) {
-                OBFUSCXX_MEM_BARRIER(v0, v1, sum)
-                auto sv0 = S::from_scalar(v0);
-                auto sv1 = S::from_scalar(v1);
-                sv1 = xtea_half_round(sv0, sv1, sum + static_cast<std::uint32_t>(iv[(sum >> 11) & 3]));
-                v1 = S::to_scalar(sv1);
+            decrypt_rounds(sv0, sv1);
 
-                sum -= xtea_delta;
-
-                OBFUSCXX_MEM_BARRIER(v0, v1, sum)
-                sv1 = S::from_scalar(v1);
-                sv0 = S::from_scalar(v0);
-                sv0 = xtea_half_round(sv1, sv0, sum + static_cast<std::uint32_t>(iv[sum & 3]));
-                v0 = S::to_scalar(sv0);
-            }
-
+            v0 = S::to_scalar(sv0);
+            v1 = S::to_scalar(sv1);
             return from_uint64((static_cast<std::uint64_t>(v1) << 32) | v0);
         }
 
