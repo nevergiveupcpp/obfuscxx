@@ -12,7 +12,7 @@ During compilation, data is encrypted via eXtended Tiny Encryption Algorithm (XT
 
 By selecting different encryption levels (Low, Medium, High), you can control the number of encryption rounds. With Low, there are 2 rounds; Medium uses 6; and High adjusts the number of rounds dynamically based on the key entropy, ranging from 8 to 32. This lets you apply lighter encryption to frequently accessed data, and stronger encryption to data that’s used less often.
 
-### Why XTEA?
+### Why XTEA
 XTEA was chosen for several reasons. The primary one is its solid cryptographic strength combined with a minimal algorithm footprint (yes, “cryptographic strength” is somewhat overstated here - the keys and the algorithm itself are visible, the goal here is making analysis more difficult, not cryptographic security). Additionally, XTEA operates on 64-bit blocks, which maps perfectly to a single scalar - one block corresponds to one protected value.
 
 ### SIMD for obfuscation
