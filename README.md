@@ -152,7 +152,7 @@ int main() {
 ### Operating Systems
 - Windows
 - Linux
-- MacOS
+- macOS
 
 ## License
 **obfuscxx** is distributed under the [Apache License 2.0](LICENSE).
