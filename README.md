@@ -89,7 +89,7 @@ int main() {
 
 ## Benchmarks
 
-> Benchmark results may vary depending on compiler flags and the toolchain used. The results below were obtained using the configuration available in [CMakeLists.txt](CMakeLists.txt).
+> Benchmark results may vary depending on compiler flags and the toolchain used. The results below were obtained using the configuration available in [CMakeLists.txt](CMakeLists.txt). Note that High-level results may vary between builds, as the number of encryption rounds is dynamically determined based on key entropy.
 
 ### Runtime performance impact
 | Operation | MSVC | LLVM | GCC |
