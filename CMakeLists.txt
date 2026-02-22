@@ -32,6 +32,12 @@ target_include_directories(obfuscxx_test PRIVATE
 
 target_compile_options(obfuscxx_test PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/constexpr:steps10000000>
+    $<$<CXX_COMPILER_ID:GNU>:-mavx2>
+    $<$<CXX_COMPILER_ID:Clang>:-mavx2>
+)
+
+target_compile_definitions(obfuscxx_test PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:OBFUSCXX_MSVC_FORCE_AVX2>
 )
 
 enable_testing()
