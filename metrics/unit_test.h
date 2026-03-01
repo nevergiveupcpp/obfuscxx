@@ -15,8 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NGU_OBFUSCXX_UNIT_TEST_H
-#define NGU_OBFUSCXX_UNIT_TEST_H
+#ifndef NGU_OBFUSCXX_METRICS_UNIT_TEST_H
+#define NGU_OBFUSCXX_METRICS_UNIT_TEST_H
 
 #include <array>
 
@@ -304,4 +304,4 @@ TEST(ObfuscxxTest, UserDefinedLiterals) {
 }
 #endif
 
-#endif // NGU_OBFUSCXX_UNIT_TEST_H
+#endif // NGU_OBFUSCXX_METRICS_UNIT_TEST_H

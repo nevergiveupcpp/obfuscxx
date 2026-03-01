@@ -15,8 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NGU_OBFUSCXX_BENCHMARK_H
-#define NGU_OBFUSCXX_BENCHMARK_H
+#ifndef NGU_OBFUSCXX_METRICS_BENCHMARK_H
+#define NGU_OBFUSCXX_METRICS_BENCHMARK_H
 
 #include <benchmark/benchmark.h>
 #include <obfuscxx/obfuscxx.h>
@@ -203,4 +203,4 @@ static void BM_ArrayGet_High(benchmark::State& state) {
 }
 BENCHMARK(BM_ArrayGet_High);
 
-#endif // NGU_OBFUSCXX_BENCHMARK_H
+#endif // NGU_OBFUSCXX_METRICS_BENCHMARK_H
