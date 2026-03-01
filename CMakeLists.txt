@@ -17,17 +17,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 find_package(GTest CONFIG REQUIRED)
 find_package(benchmark CONFIG REQUIRED)
 
-add_executable(obfuscxx_test obfuscxx/quick_test.cpp)
+add_executable(obfuscxx_test main.cpp)
 
 target_link_libraries(obfuscxx_test PRIVATE
     GTest::gtest
-    GTest::gtest_main
     benchmark::benchmark
-    benchmark::benchmark_main
     Threads::Threads
 )
 target_include_directories(obfuscxx_test PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/obfuscxx
+        include
 )
 
 target_compile_options(obfuscxx_test PRIVATE
@@ -44,4 +42,3 @@ enable_testing()
 add_test(NAME obfuscxx_test COMMAND obfuscxx_test)
 
 include(GoogleTest)
-## gtest_discover_tests(obfuscxx_test)

@@ -1,9 +1,5 @@
 # obfuscxx
 
-<p align="center">
-  <img src="images/banner.png">
-</p>
-
 ## Description
 Header-only compile-time variables obfuscation library for C++20 and later.
 
@@ -34,14 +30,14 @@ The screenshots show only a small portion of the int main() function. In reality
 <p align="center"><em>MSVC, LLVM, GCC compilation (int main(), Level: Low, Arch: x86-64, SIMD Insn: AVX2, SSE2)</em></p>
 
 ## Installation
-Just add the header file to your project - `#include "include/obfuscxx.h"`
+Just add the `include/` directory to your include path and use `#include <obfuscxx/obfuscxx.h>`
 
 > To disable the SSE2 fallback on MSVC, define `OBFUSCXX_MSVC_FORCE_AVX2` before including the header or in your CMakeLists.txt.
 
 ## Examples
 ### Basic
 ```cpp
-#include "include/obfuscxx.h"
+#include <obfuscxx/obfuscxx.h>
 
 int main() {
     obfuscxx<int> int_value{ 100 };
@@ -70,7 +66,7 @@ int main() {
 
 ### User-Defined literal (Clang/GCC only)
 ```cpp
-#include "include/obfuscxx.h"
+#include <obfuscxx/obfuscxx.h>
 
 int main() {
     std::cout << "Hello, World!"_obf << '\n';
@@ -79,7 +75,7 @@ int main() {
 
 ### Macros
 ```cpp
-#include "include/obfuscxx.h"
+#include <obfuscxx/obfuscxx.h>
 
 int main() {
     std::cout << obfusv(42) << " " << obfusv(3.14159f) << '\n';
