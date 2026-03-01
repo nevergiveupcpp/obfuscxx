@@ -25,7 +25,7 @@ target_link_libraries(obfuscxx_test PRIVATE
     Threads::Threads
 )
 target_include_directories(obfuscxx_test PRIVATE
-        include
+    include
 )
 
 target_compile_options(obfuscxx_test PRIVATE

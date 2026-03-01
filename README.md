@@ -1,5 +1,9 @@
 # obfuscxx
 
+<p align="center">
+  <img src="images/banner.png">
+</p>
+
 ## Description
 Header-only compile-time variables obfuscation library for C++20 and later.
 
