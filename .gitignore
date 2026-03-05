@@ -5,6 +5,7 @@ Release/
 x64/
 x86/
 build/
+install/
 .idea/
 
 *.o

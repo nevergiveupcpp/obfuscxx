@@ -1,0 +1,8 @@
+{
+  "name": "unittest-obfuscxx",
+  "version": "1.0.0",
+  "builtin-baseline": "34823ada10080ddca99b60e85f80f55e18a44eea",
+  "dependencies": [
+    "gtest"
+  ]
+}

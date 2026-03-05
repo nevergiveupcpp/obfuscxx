@@ -1,44 +1,46 @@
 cmake_minimum_required(VERSION 3.15)
-project(obfuscxx VERSION 1.0.0 LANGUAGES CXX)
+project(obfuscxx VERSION 1.3.1 LANGUAGES CXX)
 
-## message(STATUS "=========================================")
-## message(STATUS "C Compiler: ${CMAKE_C_COMPILER}")
-## message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
-## message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
-## message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
-## message(STATUS "=========================================")
+add_library(obfuscxx INTERFACE)
+add_library(obfuscxx::obfuscxx ALIAS obfuscxx)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-find_package(GTest CONFIG REQUIRED)
-find_package(benchmark CONFIG REQUIRED)
-
-add_executable(obfuscxx_test main.cpp)
-
-target_link_libraries(obfuscxx_test PRIVATE
-    GTest::gtest
-    benchmark::benchmark
-    Threads::Threads
-)
-target_include_directories(obfuscxx_test PRIVATE
-    include
+target_include_directories(
+        obfuscxx INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
 
-target_compile_options(obfuscxx_test PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:/constexpr:steps10000000>
-    $<$<CXX_COMPILER_ID:GNU>:-mavx2>
-    $<$<CXX_COMPILER_ID:Clang>:-mavx2>
+install(DIRECTORY include/
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
 )
 
-target_compile_definitions(obfuscxx_test PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:OBFUSCXX_MSVC_FORCE_AVX2>
+install(TARGETS obfuscxx
+        EXPORT obfuscxxTargets
 )
 
-enable_testing()
-add_test(NAME obfuscxx_test COMMAND obfuscxx_test)
+install(EXPORT obfuscxxTargets
+        FILE obfuscxxTargets.cmake
+        NAMESPACE obfuscxx::
+        DESTINATION lib/cmake/obfuscxx
+)
 
-include(GoogleTest)
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/obfuscxxConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/obfuscxxConfig.cmake
+        INSTALL_DESTINATION lib/cmake/obfuscxx
+)
+
+write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/obfuscxxConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/obfuscxxConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/obfuscxxConfigVersion.cmake
+        DESTINATION lib/cmake/obfuscxx
+)
