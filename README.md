@@ -41,7 +41,7 @@ The screenshots show only a small portion of the int main() function. In reality
 Just add the `include/` directory to your include path and use `#include <obfuscxx/obfuscxx.h>`
 
 ### Package manager
-`vcpkg install obfuscxx` then in your CMakeLists.txt:
+Run `vcpkg install obfuscxx`, then add to your CMakeLists.txt:
 ```cmake
 find_package(obfuscxx CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE obfuscxx::obfuscxx)
@@ -98,7 +98,7 @@ int main() {
 
 ## Benchmarks
 
-> Benchmark results may vary depending on compiler flags and the toolchain used. The results below were obtained using the configuration available in [CMakeLists.txt](CMakeLists.txt). Note that High-level results may vary between builds, as the number of encryption rounds is dynamically determined based on key entropy.
+> Benchmark results may vary depending on compiler flags and the toolchain used. The results below were obtained using the configuration available in [CMakeLists.txt](tests/benchmark/CMakeLists.txt). Note that High-level results may vary between builds, as the number of encryption rounds is dynamically determined based on key entropy.
 
 ### Runtime performance impact
 | Operation | MSVC | LLVM | GCC |
