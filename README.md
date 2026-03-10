@@ -34,9 +34,18 @@ The screenshots show only a small portion of the int main() function. In reality
 <p align="center"><em>MSVC, LLVM, GCC compilation (int main(), Level: Low, Arch: x86-64, SIMD Insn: AVX2, SSE2)</em></p>
 
 ## Installation
-Just add the `include/` directory to your include path and use `#include <obfuscxx/obfuscxx.h>`
 
 > To disable the SSE2 fallback on MSVC, define `OBFUSCXX_MSVC_FORCE_AVX2` before including the header or in your CMakeLists.txt.
+
+### Single header
+Just add the `include/` directory to your include path and use `#include <obfuscxx/obfuscxx.h>`
+
+### Package manager
+`vcpkg install obfuscxx` then in your CMakeLists.txt:
+```cmake
+find_package(obfuscxx CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE obfuscxx::obfuscxx)
+```
 
 ## Examples
 ### Basic
