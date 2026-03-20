@@ -38,6 +38,18 @@
       }
     },
     {
+      "name": "msvc-arm64",
+      "inherits": "base-release",
+      "displayName": "MSVC ARM64 Release",
+      "binaryDir": "${sourceDir}/build/msvc-arm64",
+      "toolset": "v143",
+      "architecture": "ARM64",
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "VCPKG_TARGET_TRIPLET": "arm64-windows"
+      }
+    },
+    {
       "name": "llvm-x64",
       "inherits": "base-release",
       "displayName": "LLVM x64 Release",
@@ -84,32 +96,54 @@
         "CMAKE_CXX_FLAGS": "-m32 -msse -msse2",
         "VCPKG_TARGET_TRIPLET": "x86-linux"
       }
+    },
+    {
+      "name": "clang-linux-x64",
+      "inherits": "base-release",
+      "displayName": "Clang Linux x64 Release",
+      "binaryDir": "${sourceDir}/build/clang-linux-x64",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "VCPKG_TARGET_TRIPLET": "x64-linux-dynamic"
+      }
+    },
+    {
+      "name": "gcc-linux-arm64",
+      "inherits": "base-release",
+      "displayName": "GCC Linux ARM64 Release",
+      "binaryDir": "${sourceDir}/build/gcc-linux-arm64",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "VCPKG_TARGET_TRIPLET": "arm64-linux"
+      }
+    },
+    {
+      "name": "apple-clang-macos-arm64",
+      "inherits": "base-release",
+      "displayName": "Apple Clang macOS ARM64 Release",
+      "binaryDir": "${sourceDir}/build/apple-clang-macos-arm64",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "VCPKG_TARGET_TRIPLET": "arm64-osx"
+      }
     }
   ],
   "buildPresets": [
-    {
-      "name": "msvc-x64",
-      "configurePreset": "msvc-x64"
-    },
-    {
-      "name": "msvc-x86",
-      "configurePreset": "msvc-x86"
-    },
-    {
-      "name": "llvm-x64",
-      "configurePreset": "llvm-x64"
-    },
-    {
-      "name": "gcc-mingw-x64",
-      "configurePreset": "gcc-mingw-x64"
-    },
-    {
-      "name": "gcc-linux-x64",
-      "configurePreset": "gcc-linux-x64"
-    },
-    {
-      "name": "gcc-linux-x86",
-      "configurePreset": "gcc-linux-x86"
-    }
+    { "name": "msvc-x64",                "configurePreset": "msvc-x64" },
+    { "name": "msvc-x86",                "configurePreset": "msvc-x86" },
+    { "name": "msvc-arm64",              "configurePreset": "msvc-arm64" },
+    { "name": "llvm-x64",                "configurePreset": "llvm-x64" },
+    { "name": "gcc-mingw-x64",           "configurePreset": "gcc-mingw-x64" },
+    { "name": "gcc-linux-x64",           "configurePreset": "gcc-linux-x64" },
+    { "name": "gcc-linux-x86",           "configurePreset": "gcc-linux-x86" },
+    { "name": "clang-linux-x64",         "configurePreset": "clang-linux-x64" },
+    { "name": "gcc-linux-arm64",         "configurePreset": "gcc-linux-arm64" },
+    { "name": "apple-clang-macos-arm64", "configurePreset": "apple-clang-macos-arm64" }
   ]
 }

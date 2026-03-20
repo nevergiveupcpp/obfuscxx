@@ -24,8 +24,8 @@ target_link_libraries(unittest-obfuscxx PRIVATE
 
 target_compile_options(unittest-obfuscxx PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/constexpr:steps10000000>
-        $<$<CXX_COMPILER_ID:GNU>:-mavx2>
-        $<$<CXX_COMPILER_ID:Clang>:-mavx2>
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<NOT:$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},aarch64>>>:-mavx2>
+        $<$<AND:$<CXX_COMPILER_ID:Clang>,$<NOT:$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},aarch64>>>:-mavx2>
 )
 
 target_compile_definitions(unittest-obfuscxx PRIVATE
