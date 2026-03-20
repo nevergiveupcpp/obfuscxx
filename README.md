@@ -1,7 +1,7 @@
 # obfuscxx
 
 <p align="center">
-  <img src="images/banner.png">
+  <img src="docs/images/banner.png">
 </p>
 
 ## Description
@@ -26,9 +26,9 @@ The screenshots show only a small portion of the int main() function. In reality
 
 <table align="center">
 <tr>
-<td><img src="images/msvc.png" width="400"/></td>
-<td><img src="images/llvm.png" width="400"/></td>
-<td><img src="images/gcc.png" width="400"/></td>
+<td><img src="docs/images/msvc.png" width="400"/></td>
+<td><img src="docs/images/llvm.png" width="400"/></td>
+<td><img src="docs/images/gcc.png" width="400"/></td>
 </tr>
 </table>
 <p align="center"><em>MSVC, LLVM, GCC compilation (int main(), Level: Low, Arch: x86-64, SIMD Insn: AVX2, SSE2)</em></p>
