@@ -107,10 +107,38 @@ jobs:
           alert-threshold: '150%'
           fail-on-alert: true
 
+  clang-format:
+    name: Clang Format
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: |
+          find include tests -name "*.h" -o -name "*.cpp" | \
+          xargs clang-format --dry-run --Werror
+
+  clang-tidy:
+    name: Clang Tidy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Clang-Tidy 19
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" | sudo tee /etc/apt/sources.list.d/llvm.list
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy-19
+      - name: Check tidy
+        run: |
+          find include -name "*.h" -o -name "*.cpp" | \
+          xargs -I{} clang-tidy-19 {} -- -x c++ -std=c++20 -I include -include cstdint -include cstddef
+
   all-checks:
     name: All Checks
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    needs: [unittests]
+    needs: [unittests, clang-format, clang-tidy]
     steps:
       - run: echo "All checks passed"

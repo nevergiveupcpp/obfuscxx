@@ -24,7 +24,7 @@
 using namespace ngu;
 
 static void BM_IntegerGet_Low(benchmark::State& state) {
-    obfuscxx<int, 1, obf_level::Low> int_value{ 42 };
+    obfuscxx<int, 1, obf_level::Low> int_value{42};
     for (auto _ : state) {
         benchmark::DoNotOptimize(int_value.get());
     }
@@ -32,7 +32,7 @@ static void BM_IntegerGet_Low(benchmark::State& state) {
 BENCHMARK(BM_IntegerGet_Low);
 
 static void BM_IntegerGet_Medium(benchmark::State& state) {
-    obfuscxx<int, 1, obf_level::Medium> int_value{ 42 };
+    obfuscxx<int, 1, obf_level::Medium> int_value{42};
     for (auto _ : state) {
         benchmark::DoNotOptimize(int_value.get());
     }
@@ -40,7 +40,7 @@ static void BM_IntegerGet_Medium(benchmark::State& state) {
 BENCHMARK(BM_IntegerGet_Medium);
 
 static void BM_IntegerGet_High(benchmark::State& state) {
-    obfuscxx<int, 1, obf_level::High> int_value{ 42 };
+    obfuscxx<int, 1, obf_level::High> int_value{42};
     for (auto _ : state) {
         benchmark::DoNotOptimize(int_value.get());
     }
@@ -48,7 +48,7 @@ static void BM_IntegerGet_High(benchmark::State& state) {
 BENCHMARK(BM_IntegerGet_High);
 
 static void BM_FloatGet_Low(benchmark::State& state) {
-    obfuscxx<float, 1, obf_level::Low> float_value{ 42.5f };
+    obfuscxx<float, 1, obf_level::Low> float_value{42.5f};
     for (auto _ : state) {
         benchmark::DoNotOptimize(float_value.get());
     }
@@ -56,7 +56,7 @@ static void BM_FloatGet_Low(benchmark::State& state) {
 BENCHMARK(BM_FloatGet_Low);
 
 static void BM_FloatGet_Medium(benchmark::State& state) {
-    obfuscxx<float, 1, obf_level::Medium> float_value{ 42.5f };
+    obfuscxx<float, 1, obf_level::Medium> float_value{42.5f};
     for (auto _ : state) {
         benchmark::DoNotOptimize(float_value.get());
     }
@@ -64,7 +64,7 @@ static void BM_FloatGet_Medium(benchmark::State& state) {
 BENCHMARK(BM_FloatGet_Medium);
 
 static void BM_FloatGet_High(benchmark::State& state) {
-    obfuscxx<float, 1, obf_level::High> float_value{ 42.5f };
+    obfuscxx<float, 1, obf_level::High> float_value{42.5f};
     for (auto _ : state) {
         benchmark::DoNotOptimize(float_value.get());
     }
