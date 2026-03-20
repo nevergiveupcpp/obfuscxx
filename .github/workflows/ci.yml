@@ -94,7 +94,7 @@ jobs:
 
       - name: Run
         working-directory: tests/benchmark/build/msvc-x64/Release
-        run: ./benchmark-pvm.exe --benchmark_format=json --benchmark_out=result.json
+        run: ./benchmark-obfuscxx.exe --benchmark_format=json --benchmark_out=result.json
 
       - name: Store results
         uses: benchmark-action/github-action-benchmark@v1
