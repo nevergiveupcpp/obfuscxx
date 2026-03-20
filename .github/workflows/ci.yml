@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  unittests:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'pull_request'
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          - name: Windows x64 / MSVC
+            os: windows-latest
+            preset: msvc-x64
+            vcpkg_triplet: x64-windows
+
+          - name: Windows x64 / Clang
+            os: windows-latest
+            preset: llvm-x64
+            vcpkg_triplet: x64-windows
+
+          - name: Windows ARM64 / MSVC
+            os: windows-11-arm
+            preset: msvc-arm64
+            vcpkg_triplet: arm64-windows
+
+          - name: Linux x64 / GCC
+            os: ubuntu-latest
+            preset: gcc-linux-x64
+            vcpkg_triplet: x64-linux-dynamic
+
+          - name: Linux ARM64 / GCC
+            os: ubuntu-24.04-arm
+            preset: gcc-linux-arm64
+            vcpkg_triplet: arm64-linux
+
+          - name: macOS ARM64 / AppleClang
+            os: macos-latest
+            preset: apple-clang-macos-arm64
+            vcpkg_triplet: arm64-osx
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set VCPKG_ROOT
+        shell: bash
+        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+      - name: Install GTest
+        run: vcpkg install gtest:${{ matrix.vcpkg_triplet }}
+
+      - name: Configure
+        working-directory: tests/unittest
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        working-directory: tests/unittest
+        run: cmake --build --preset ${{ matrix.preset }} --config Release
+
+      - name: Test
+        working-directory: tests/unittest/build/${{ matrix.preset }}
+        run: ctest --build-config Release --output-on-failure
+
+  benchmark:
+    name: Benchmark
+    runs-on: windows-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set VCPKG_ROOT
+        shell: bash
+        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+      - name: Install Google Benchmark
+        run: vcpkg install benchmark:x64-windows
+
+      - name: Configure
+        working-directory: tests/benchmark
+        run: cmake --preset msvc-x64
+
+      - name: Build
+        working-directory: tests/benchmark
+        run: cmake --build --preset msvc-x64 --config Release
+
+      - name: Run
+        working-directory: tests/benchmark/build/msvc-x64/Release
+        run: ./benchmark-pvm.exe --benchmark_format=json --benchmark_out=result.json
+
+      - name: Store results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: googlecpp
+          output-file-path: tests/benchmark/build/msvc-x64/Release/result.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          comment-on-alert: true
+          alert-threshold: '150%'
+          fail-on-alert: true
+
+  all-checks:
+    name: All Checks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [unittests]
+    steps:
+      - run: echo "All checks passed"
