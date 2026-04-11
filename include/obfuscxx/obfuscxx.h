@@ -21,6 +21,13 @@
 #include <cstdint>
 #include <initializer_list>
 
+#if __has_include(<pvm/pvm.h>)
+#include <pvm/pvm.h>
+#define OBFUSCXX_HAS_PVM 1
+#else
+#define OBFUSCXX_HAS_PVM 0
+#endif
+
 #if defined(_KERNEL_MODE) || defined(_WIN64_DRIVER)
 using byte = std::uint8_t;
 using max_align_t = double;
@@ -77,8 +84,10 @@ using max_align_t = double;
 
 #ifndef OBFUSCXX_DISABLE_WARNS
 #define OBFUSCXX_RUNTIME_WARNING                                                                                       \
-    [[deprecated("OBFUSCXX: Runtime set() uses encrypt method without SIMD obfuscation. For better protection, "       \
-                 "initialize at compile-time.")]]
+    [[deprecated(                                                                                                      \
+        "OBFUSCXX: Runtime set() uses encrypt method without SIMD obfuscation. For better protection, "                \
+        "initialize at compile-time."                                                                                  \
+    )]]
 #else
 #define OBFUSCXX_RUNTIME_WARNING
 #endif
@@ -234,24 +243,24 @@ namespace ngu {
 #endif
 #endif
 
-#define OBFUSCXX_HASH(s) detail::hash_compile_time(s)
-#define OBFUSCXX_HASH_RT(s) detail::hash_runtime(s)
+#define OBFUSCXX_HASH(s) ngu::detail::hash_compile_time(s)
+#define OBFUSCXX_HASH_RT(s) ngu::detail::hash_runtime(s)
 
 #if defined(_KERNEL_MODE) || defined(_WIN64_DRIVER)
 #define OBFUSCXX_ENTROPY                                                                                               \
-    (detail::splitmix64(                                                                                               \
+    (ngu::detail::splitmix64(                                                                                          \
         (OBFUSCXX_HASH(__FILE__) * 0x517cc1b727220a95ULL) + ((std::uint64_t)__LINE__ * 0x9e3779b97f4a7c15ULL) +        \
-        (detail::rol64((std::uint64_t)__COUNTER__, 37) ^ ((std::uint64_t)__LINE__ * 0xff51afd7ed558ccdULL))            \
+        (ngu::detail::rol64((std::uint64_t)__COUNTER__, 37) ^ ((std::uint64_t)__LINE__ * 0xff51afd7ed558ccdULL))       \
     ))
 #else
 #define OBFUSCXX_ENTROPY                                                                                               \
-    (detail::splitmix64(                                                                                               \
+    (ngu::detail::splitmix64(                                                                                          \
         OBFUSCXX_HASH(__FILE__) + ((std::uint64_t)__LINE__ * 0x9e3779b97f4a7c15ULL) +                                  \
         (OBFUSCXX_HASH(__TIME__) ^ ((std::uint64_t)__COUNTER__ << 32))                                                 \
     ))
 #endif
 
-    enum class obf_level : std::uint8_t { Low, Medium, High };
+    enum class obf_level : std::uint8_t { Low, Medium, High, Virt };
     template<
         class Type,
         std::size_t Size = 1,
@@ -291,6 +300,10 @@ namespace ngu {
         static constexpr std::uint32_t xtea_rounds = (Level == obf_level::Low)      ? 2
                                                      : (Level == obf_level::Medium) ? 6
                                                                                     : (8 + ((unique_value % 13) * 2));
+#if OBFUSCXX_HAS_PVM
+        static constexpr auto arch = pvm::architecture::make(unique_value);
+        static constexpr auto interp = pvm::interpreter{arch};
+#endif
 
         static constexpr std::uint32_t xtea_delta = (0x9E3779B9 ^ static_cast<std::uint32_t>(unique_value)) | 1;
 
@@ -492,6 +505,128 @@ namespace ngu {
 #endif
         }
 
+#if OBFUSCXX_HAS_PVM
+        static OBFUSCXX_FORCEINLINE Type vm_decrypt(std::uint64_t value) {
+            OBFUSCXX_MEM_BARRIER(value)
+
+            auto const v0 = static_cast<std::uint32_t>(value);
+            auto const v1 = static_cast<std::uint32_t>(value >> 32);
+
+            using namespace pvm;
+
+            constexpr std::uint64_t l_loop = 1;
+            constexpr std::uint64_t l_s1_k1 = 2, l_s1_k2 = 3, l_s1_k3 = 4, l_s1_e = 5;
+            constexpr std::uint64_t l_s2_k1 = 6, l_s2_k2 = 7, l_s2_k3 = 8, l_s2_e = 9;
+
+            constexpr auto cr = macro_assembler{arch};
+            using R = arch::reg;
+
+            constexpr auto code = PVM_ASSEMBLE(
+                arch,
+                // init constants
+                cr.MOV(R::REG_R3, operand(static_cast<std::uint32_t>(xtea_delta * xtea_rounds))),
+                cr.MOV(R::REG_R4, operand(xtea_delta)),
+                cr.MOV(R::REG_R5, operand(xtea_rounds)),
+                cr.MOV(R::REG_R9, operand(static_cast<std::uint32_t>(iv[0]))),
+                cr.MOV(R::REG_R10, operand(static_cast<std::uint32_t>(iv[1]))),
+                cr.MOV(R::REG_R11, operand(static_cast<std::uint32_t>(iv[2]))),
+                cr.MOV(R::REG_R0, operand(static_cast<std::uint32_t>(iv[3]))),
+
+                cr.LABEL(l_loop),
+
+                // half-round 1: R8 = ((R1<<4)^(R1>>5))+R1
+                cr.MOV(R::REG_R6, operand(R::REG_R1)),
+                cr.SHL(R::REG_R6, operand(4u)),
+                cr.MOV(R::REG_R7, operand(R::REG_R1)),
+                cr.SHR(R::REG_R7, operand(5u)),
+                cr.XOR(R::REG_R6, operand(R::REG_R7)),
+                cr.ADD(R::REG_R6, operand(R::REG_R1)),
+
+                // select iv[(sum>>11)&3]
+                cr.MOV(R::REG_R7, operand(R::REG_R3)),
+                cr.SHR(R::REG_R7, operand(11u)),
+                cr.AND(R::REG_R7, operand(3u)),
+
+                cr.CMP(R::REG_R7, operand(0u)),
+                cr.JNEL(l_s1_k1),
+                cr.MOV(R::REG_R8, operand(R::REG_R9)),
+                cr.JMPL(l_s1_e),
+                cr.LABEL(l_s1_k1),
+                cr.CMP(R::REG_R7, operand(1u)),
+                cr.JNEL(l_s1_k2),
+                cr.MOV(R::REG_R8, operand(R::REG_R10)),
+                cr.JMPL(l_s1_e),
+                cr.LABEL(l_s1_k2),
+                cr.CMP(R::REG_R7, operand(2u)),
+                cr.JNEL(l_s1_k3),
+                cr.MOV(R::REG_R8, operand(R::REG_R11)),
+                cr.JMPL(l_s1_e),
+                cr.LABEL(l_s1_k3),
+                cr.MOV(R::REG_R8, operand(R::REG_R0)),
+                cr.LABEL(l_s1_e),
+
+                // v1 -= ((v0<<4^v0>>5)+v0) ^ (sum+key)
+                cr.ADD(R::REG_R8, operand(R::REG_R3)),
+                cr.XOR(R::REG_R6, operand(R::REG_R8)),
+                cr.SUB(R::REG_R2, operand(R::REG_R6)),
+                cr.AND(R::REG_R2, operand(0xFFFFFFFFu)),
+
+                // sum -= delta
+                cr.SUB(R::REG_R3, operand(R::REG_R4)),
+                cr.AND(R::REG_R3, operand(0xFFFFFFFFu)),
+
+                // half-round 2: R6 = ((R2<<4)^(R2>>5))+R2
+                cr.MOV(R::REG_R6, operand(R::REG_R2)),
+                cr.SHL(R::REG_R6, operand(4u)),
+                cr.MOV(R::REG_R7, operand(R::REG_R2)),
+                cr.SHR(R::REG_R7, operand(5u)),
+                cr.XOR(R::REG_R6, operand(R::REG_R7)),
+                cr.ADD(R::REG_R6, operand(R::REG_R2)),
+
+                // select iv[sum&3]
+                cr.MOV(R::REG_R7, operand(R::REG_R3)),
+                cr.AND(R::REG_R7, operand(3u)),
+
+                cr.CMP(R::REG_R7, operand(0u)),
+                cr.JNEL(l_s2_k1),
+                cr.MOV(R::REG_R8, operand(R::REG_R9)),
+                cr.JMPL(l_s2_e),
+                cr.LABEL(l_s2_k1),
+                cr.CMP(R::REG_R7, operand(1u)),
+                cr.JNEL(l_s2_k2),
+                cr.MOV(R::REG_R8, operand(R::REG_R10)),
+                cr.JMPL(l_s2_e),
+                cr.LABEL(l_s2_k2),
+                cr.CMP(R::REG_R7, operand(2u)),
+                cr.JNEL(l_s2_k3),
+                cr.MOV(R::REG_R8, operand(R::REG_R11)),
+                cr.JMPL(l_s2_e),
+                cr.LABEL(l_s2_k3),
+                cr.MOV(R::REG_R8, operand(R::REG_R0)),
+                cr.LABEL(l_s2_e),
+
+                // v0 -= ((v1<<4^v1>>5)+v1) ^ (sum+key)
+                cr.ADD(R::REG_R8, operand(R::REG_R3)),
+                cr.XOR(R::REG_R6, operand(R::REG_R8)),
+                cr.SUB(R::REG_R1, operand(R::REG_R6)),
+                cr.AND(R::REG_R1, operand(0xFFFFFFFFu)),
+
+                cr.LOOP(R::REG_R5, l_loop),
+                cr.HALT()
+            );
+
+            auto* ctx = interp.get_ctx();
+            ctx->set_reg(arch::reg::REG_R1, v0);
+            ctx->set_reg(arch::reg::REG_R2, v1);
+
+            interp.run(code);
+
+            auto const r0 = static_cast<std::uint32_t>(ctx->get_reg(arch::reg::REG_R1));
+            auto const r1 = static_cast<std::uint32_t>(ctx->get_reg(arch::reg::REG_R2));
+            return from_uint64((static_cast<std::uint64_t>(r1) << 32) | r0);
+        }
+#endif
+
         static constexpr std::uint64_t to_uint64(Type value) {
             if constexpr (std::is_pointer_v<Type>) {
                 return reinterpret_cast<std::uint64_t>(value);
@@ -574,6 +709,11 @@ namespace ngu {
         {
             volatile const std::uint64_t* ptr = &storage_[0];
             std::uint64_t val = *ptr;
+#if OBFUSCXX_HAS_PVM
+            if constexpr (Level == obf_level::Virt) {
+                return vm_decrypt(val);
+            }
+#endif
             return decrypt(val);
         }
 
@@ -582,6 +722,11 @@ namespace ngu {
         {
             volatile const std::uint64_t* ptr = &storage_[i];
             std::uint64_t val = *ptr;
+#if OBFUSCXX_HAS_PVM
+            if constexpr (Level == obf_level::Virt) {
+                return vm_decrypt(val);
+            }
+#endif
             return decrypt(val);
         }
 
@@ -589,6 +734,15 @@ namespace ngu {
             requires is_array
         {
             std::size_t effective_count = (count < Size) ? count : Size;
+#if OBFUSCXX_HAS_PVM
+            if constexpr (Level == obf_level::Virt) {
+                for (std::size_t i{}; i < effective_count; ++i) {
+                    volatile const std::uint64_t* ptr = &storage_[i];
+                    out[i] = vm_decrypt(*ptr);
+                }
+                return;
+            }
+#endif
             decrypt_vectorized(storage_, out, effective_count);
         }
 
@@ -760,6 +914,7 @@ namespace ngu {
         {
             return {this, Size};
         }
+
         static constexpr std::size_t size() {
             return Size;
         }
@@ -851,13 +1006,58 @@ namespace ngu {
 } // namespace ngu
 
 #if defined(__clang__) || defined(__GNUC__)
+
+#define OBFUSCXX_LITERAL(str, type, size, level) ngu::obfuscxx<type, size, level, OBFUSCXX_ENTROPY>(str).to_string()
+
 template<typename CharType, CharType... Chars> constexpr auto operator""_obf() {
     constexpr CharType str[] = {Chars..., '\0'};
-    return ngu::obfuscxx(str).to_string();
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Low);
+}
+
+template<typename CharType, CharType... Chars> constexpr auto operator""_obfm() {
+    constexpr CharType str[] = {Chars..., '\0'};
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Medium);
+}
+
+template<typename CharType, CharType... Chars> constexpr auto operator""_obfh() {
+    constexpr CharType str[] = {Chars..., '\0'};
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::High);
+}
+
+#if OBFUSCXX_HAS_PVM
+template<typename CharType, CharType... Chars> constexpr auto operator""_obfx() {
+    constexpr CharType str[] = {Chars..., '\0'};
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Virt);
 }
 #endif
+#endif
 
-#define obfusv(val) ngu::obfuscxx(val).get()
-#define obfuss(str) ngu::obfuscxx(str).to_string().c_str()
+#define obfusvex(val, level) ngu::obfuscxx<std::remove_cvref_t<decltype(val)>, 1, level, OBFUSCXX_ENTROPY>(val).get()
+
+#define obfussex(str, level)                                                                                           \
+    ngu::obfuscxx<std::remove_cvref_t<decltype(str[0])>, sizeof(str) / sizeof(str[0]), level, OBFUSCXX_ENTROPY>(str)   \
+        .to_string()                                                                                                   \
+        .c_str()
+
+#define obfusv(val) obfusvex(val, ngu::obf_level::Low)
+#define obfuss(str) obfussex(str, ngu::obf_level::Low)
+
+#define obfusvm(val) obfusvex(val, ngu::obf_level::Medium)
+#define obfussm(str) obfussex(str, ngu::obf_level::Medium)
+
+#define obfusvh(val) obfusvex(val, ngu::obf_level::High)
+#define obfussh(str) obfussex(str, ngu::obf_level::High)
+
+#if OBFUSCXX_HAS_PVM
+#define obfusvx(val) obfusvex(val, ngu::obf_level::Virt)
+#define obfussx(str) obfussex(str, ngu::obf_level::Virt)
+#endif
+
+class poo_test {
+public:
+    void method1() {
+        printf("loh");
+    };
+};
 
 #endif // NGU_OBFUSCXX_H
