@@ -1053,11 +1053,4 @@ template<typename CharType, CharType... Chars> constexpr auto operator""_obfx() 
 #define obfussx(str) obfussex(str, ngu::obf_level::Virt)
 #endif
 
-class poo_test {
-public:
-    void method1() {
-        printf("loh");
-    };
-};
-
 #endif // NGU_OBFUSCXX_H

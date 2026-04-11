@@ -2,7 +2,8 @@ Checks: >
   readability-identifier-naming,
   readability-implicit-bool-conversion,
   misc-const-correctness,
-  -clang-diagnostic-error
+  -clang-diagnostic-error,
+  -clang-diagnostic-gnu-string-literal-operator-template
 
 CheckOptions:
   - key: readability-identifier-naming.ClassCase

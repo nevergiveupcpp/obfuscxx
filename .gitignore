@@ -1,22 +1,23 @@
-.vs/
-*.sln.docstates
-Debug/
-Release/
-x64/
-x86/
-build/
-install/
-.idea/
+# ides
+/.vs/
+/.idea/
 
-*.o
+# builds
+/build*/
+/install*/
+
+# formats
 *.obj
 *.exe
-*.dll
-*.pdb
-*.ilk
-*.log
-*.tlog
-*.user
-*.iml
-*.xml
 *.bat
+
+# cmake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+cmake/local.cmake
+
+# other
+pvm/
+/examples/
