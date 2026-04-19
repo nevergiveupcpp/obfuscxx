@@ -44,3 +44,5 @@ install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/obfuscxxConfigVersion.cmake
         DESTINATION lib/cmake/obfuscxx
 )
+
+include(./cmake/local.cmake OPTIONAL)

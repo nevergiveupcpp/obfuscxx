@@ -77,8 +77,10 @@ using max_align_t = double;
 
 #ifndef OBFUSCXX_DISABLE_WARNS
 #define OBFUSCXX_RUNTIME_WARNING                                                                                       \
-    [[deprecated("OBFUSCXX: Runtime set() uses encrypt method without SIMD obfuscation. For better protection, "       \
-                 "initialize at compile-time.")]]
+    [[deprecated(                                                                                                      \
+        "OBFUSCXX: Runtime set() uses encrypt method without SIMD obfuscation. For better protection, "                \
+        "initialize at compile-time."                                                                                  \
+    )]]
 #else
 #define OBFUSCXX_RUNTIME_WARNING
 #endif
@@ -128,7 +130,7 @@ namespace ngu {
             return hash;
         }
 
-        constexpr std::uint64_t rol64(std::uint64_t x, int n) {
+        OBFUSCXX_FORCEINLINE constexpr std::uint64_t rol64(std::uint64_t x, int n) {
             n &= 63;
             if (n == 0) {
                 return x;
@@ -136,12 +138,16 @@ namespace ngu {
             return (x << n) | (x >> (64 - n));
         }
 
-        constexpr std::uint64_t ror64(std::uint64_t x, int n) {
+        OBFUSCXX_FORCEINLINE constexpr std::uint64_t ror64(std::uint64_t x, int n) {
             n &= 63;
             if (n == 0) {
                 return x;
             }
             return (x >> n) | (x << (64 - n));
+        }
+
+        OBFUSCXX_FORCEINLINE constexpr std::size_t align_up(const std::size_t size, const std::size_t multiple) {
+            return (size + multiple - 1) & ~(multiple - 1);
         }
     } // namespace detail
 
@@ -234,8 +240,8 @@ namespace ngu {
 #endif
 #endif
 
-#define OBFUSCXX_HASH(s) detail::hash_compile_time(s)
-#define OBFUSCXX_HASH_RT(s) detail::hash_runtime(s)
+#define OBFUSCXX_HASH(s) ngu::detail::hash_compile_time(s)
+#define OBFUSCXX_HASH_RT(s) ngu::detail::hash_runtime(s)
 
 #if defined(_KERNEL_MODE) || defined(_WIN64_DRIVER)
 #define OBFUSCXX_ENTROPY                                                                                               \
@@ -245,29 +251,27 @@ namespace ngu {
     ))
 #else
 #define OBFUSCXX_ENTROPY                                                                                               \
-    (detail::splitmix64(                                                                                               \
+    (ngu::detail::splitmix64(                                                                                          \
         OBFUSCXX_HASH(__FILE__) + ((std::uint64_t)__LINE__ * 0x9e3779b97f4a7c15ULL) +                                  \
         (OBFUSCXX_HASH(__TIME__) ^ ((std::uint64_t)__COUNTER__ << 32))                                                 \
     ))
 #endif
 
     enum class obf_level : std::uint8_t { Low, Medium, High };
-    template<
-        class Type,
-        std::size_t Size = 1,
-        obf_level Level = obf_level::Low,
-        std::uint64_t Entropy = OBFUSCXX_ENTROPY>
-    class obfuscxx {
-        static constexpr bool is_single = Size == 1;
-        static constexpr bool is_array = Size > 1;
-        static constexpr bool is_single_pointer = std::is_pointer_v<Type> && Size == 1;
+    template<class T, obf_level Level = obf_level::Low, std::uint64_t Entropy = OBFUSCXX_ENTROPY> class obfuscxx {
+        using Type = std::remove_extent_t<T>;
+        static constexpr std::size_t type_size = std::is_array_v<T> ? std::extent_v<T> : 1;
+
+        static constexpr bool is_array = std::is_array_v<T>;
+        static constexpr bool is_single = !is_array;
+        static constexpr bool is_single_pointer = std::is_pointer_v<Type> && type_size == 1;
         static constexpr bool is_char = std::is_same_v<Type, char> || std::is_same_v<Type, const char>;
         static constexpr bool is_wchar = std::is_same_v<Type, wchar_t> || std::is_same_v<Type, const wchar_t>;
 
         static constexpr std::size_t storage_multiple = OBFUSCXX_HAS_AVX2 ? 8 : 4;
         static constexpr std::size_t storage_alignment = OBFUSCXX_HAS_AVX2 ? 32 : 16;
         static constexpr std::size_t storage_size =
-            is_array ? (Size + storage_multiple - 1) & ~(storage_multiple - 1) : Size;
+            is_array ? detail::align_up(type_size, storage_multiple) : type_size;
 
         struct passkey {
             explicit passkey() = default;
@@ -370,7 +374,7 @@ namespace ngu {
         static OBFUSCXX_FORCEINLINE void decrypt_vectorized(
             const volatile std::uint64_t* src, Type* dst, std::size_t count
         ) {
-            std::size_t const aligned_count = (count + storage_multiple - 1) & ~(storage_multiple - 1);
+            std::size_t const aligned_count = detail::align_up(count, storage_multiple);
 
 #if defined(__aarch64__) || defined(_M_ARM64)
             for (std::size_t i{}; i < aligned_count; i += 4) {
@@ -542,7 +546,7 @@ namespace ngu {
 
     public:
         explicit consteval obfuscxx(passkey) {
-            for (std::size_t i{}; i < Size; ++i) {
+            for (std::size_t i{}; i < type_size; ++i) {
                 storage_[i] = seed ^ iv[i & iv_size];
             }
         }
@@ -551,14 +555,14 @@ namespace ngu {
             storage_[0] = encrypt(val);
         }
 
-        explicit consteval obfuscxx(Type (&arr)[Size]) : obfuscxx(passkey{}) {
-            for (std::size_t i{}; i < Size; ++i) {
+        explicit consteval obfuscxx(Type (&arr)[type_size]) : obfuscxx(passkey{}) {
+            for (std::size_t i{}; i < type_size; ++i) {
                 storage_[i] = encrypt(arr[i]);
             }
         }
 
-        explicit consteval obfuscxx(const Type (&arr)[Size]) : obfuscxx(passkey{}) {
-            for (std::size_t i{}; i < Size; ++i) {
+        explicit consteval obfuscxx(const Type (&arr)[type_size]) : obfuscxx(passkey{}) {
+            for (std::size_t i{}; i < type_size; ++i) {
                 storage_[i] = encrypt(arr[i]);
             }
         }
@@ -588,7 +592,7 @@ namespace ngu {
         OBFUSCXX_FORCEINLINE void copy_to(Type* out, std::size_t count) const
             requires is_array
         {
-            std::size_t effective_count = (count < Size) ? count : Size;
+            std::size_t effective_count = (count < type_size) ? count : type_size;
             decrypt_vectorized(storage_, out, effective_count);
         }
 
@@ -608,7 +612,7 @@ namespace ngu {
             requires is_array
         {
             for (std::size_t i{}; const auto& val : list) {
-                if (i < Size) {
+                if (i < type_size) {
                     storage_[i++] = encrypt(val);
                 }
             }
@@ -649,7 +653,7 @@ namespace ngu {
         OBFUSCXX_FORCEINLINE bool operator==(const obfuscxx& rhs) const
             requires is_array
         {
-            for (std::size_t i{}; i < Size; ++i) {
+            for (std::size_t i{}; i < type_size; ++i) {
                 if (get(i) != rhs.get(i)) {
                     return false;
                 }
@@ -758,10 +762,10 @@ namespace ngu {
         iterator end() const
             requires is_array
         {
-            return {this, Size};
+            return {this, type_size};
         }
         static constexpr std::size_t size() {
-            return Size;
+            return type_size;
         }
 
         template<class CharType, std::size_t N> struct string_copy {
@@ -825,23 +829,23 @@ namespace ngu {
             ArrayType data[N];
         };
 
-        OBFUSCXX_FORCEINLINE string_copy<Type, Size> to_string() const
+        OBFUSCXX_FORCEINLINE string_copy<Type, type_size> to_string() const
             requires(is_char || is_wchar)
         {
-            string_copy<Type, Size> result{};
+            string_copy<Type, type_size> result{};
             if constexpr (is_array) {
-                copy_to(result.data, Size);
+                copy_to(result.data, type_size);
             } else {
                 result.data[0] = get();
             }
             return result;
         }
 
-        OBFUSCXX_FORCEINLINE array_copy<Type, Size> to_array() const
+        OBFUSCXX_FORCEINLINE array_copy<Type, type_size> to_array() const
             requires(is_array)
         {
-            array_copy<Type, Size> result{};
-            copy_to(result.data, Size);
+            array_copy<Type, type_size> result{};
+            copy_to(result.data, type_size);
             return result;
         }
 
@@ -851,13 +855,49 @@ namespace ngu {
 } // namespace ngu
 
 #if defined(__clang__) || defined(__GNUC__)
+
+#define OBFUSCXX_LITERAL(str, type, size, level) ngu::obfuscxx<type, size, level, OBFUSCXX_ENTROPY>(str).to_string()
+
+/// Obfuscate string literal (Low level)
 template<typename CharType, CharType... Chars> constexpr auto operator""_obf() {
     constexpr CharType str[] = {Chars..., '\0'};
-    return ngu::obfuscxx(str).to_string();
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Low);
 }
+/// Obfuscate string literal (Medium level)
+template<typename CharType, CharType... Chars> constexpr auto operator""_obfm() {
+    constexpr CharType str[] = {Chars..., '\0'};
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Medium);
+}
+/// Obfuscate string literal (High level)
+template<typename CharType, CharType... Chars> constexpr auto operator""_obfh() {
+    constexpr CharType str[] = {Chars..., '\0'};
+    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::High);
+}
+
 #endif
 
-#define obfusv(val) ngu::obfuscxx(val).get()
-#define obfuss(str) ngu::obfuscxx(str).to_string().c_str()
+#define OBFUSCXX_VAL_EX(val, level)                                                                                    \
+    ngu::obfuscxx<std::remove_cvref_t<decltype(val)>, 1, level, OBFUSCXX_ENTROPY>(val).get()
+#define OBFUSCXX_STR_EX(str, level)                                                                                    \
+    ngu::obfuscxx<std::remove_cvref_t<decltype(str[0])>, sizeof(str) / sizeof(str[0]), level, OBFUSCXX_ENTROPY>(str)   \
+        .to_string()                                                                                                   \
+        .c_str()
+
+/// Obfuscate value (Low level)
+#define obfusv(val) OBFUSCXX_VAL_EX(val, ngu::obf_level::Low)
+/// Obfuscate string (Low level)
+#define obfuss(str) OBFUSCXX_STR_EX(str, ngu::obf_level::Low)
+
+/// Obfuscate value (Medium level)
+#define obfusvm(val) OBFUSCXX_VAL_EX(val, ngu::obf_level::Medium)
+/// Obfuscate string (Medium level)
+#define obfussm(str) OBFUSCXX_STR_EX(str, ngu::obf_level::Medium)
+
+/// Obfuscate value (High level)
+#define obfusvh(val) OBFUSCXX_VAL_EX(val, ngu::obf_level::High)
+/// Obfuscate string (High level)
+#define obfussh(str) OBFUSCXX_STR_EX(str, ngu::obf_level::High)
+
+#define obfusf(type, size, level) ngu::obfuscxx<type, size, level, OBFUSCXX_ENTROPY>
 
 #endif // NGU_OBFUSCXX_H
