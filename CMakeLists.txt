@@ -45,4 +45,4 @@ install(FILES
         DESTINATION lib/cmake/obfuscxx
 )
 
-include(./cmake/local.cmake OPTIONAL)
+include(cmake/development.cmake OPTIONAL)

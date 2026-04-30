@@ -24,55 +24,55 @@
 using namespace ngu;
 
 static void BM_IntegerGet_Low(benchmark::State& state) {
-    obfuscxx<int, 1, obf_level::Low> int_value{42};
+    obfxx(int) const value{50};
     for (auto _ : state) {
-        benchmark::DoNotOptimize(int_value.get());
+        benchmark::DoNotOptimize(value.get());
     }
 }
 BENCHMARK(BM_IntegerGet_Low);
 
 static void BM_IntegerGet_Medium(benchmark::State& state) {
-    obfuscxx<int, 1, obf_level::Medium> int_value{42};
+    obfxx(int, obf_level::medium) const value{50};
     for (auto _ : state) {
-        benchmark::DoNotOptimize(int_value.get());
+        benchmark::DoNotOptimize(value.get());
     }
 }
 BENCHMARK(BM_IntegerGet_Medium);
 
 static void BM_IntegerGet_High(benchmark::State& state) {
-    obfuscxx<int, 1, obf_level::High> int_value{42};
+    obfxx(int, obf_level::high) const value{50};
     for (auto _ : state) {
-        benchmark::DoNotOptimize(int_value.get());
+        benchmark::DoNotOptimize(value.get());
     }
 }
 BENCHMARK(BM_IntegerGet_High);
 
 static void BM_FloatGet_Low(benchmark::State& state) {
-    obfuscxx<float, 1, obf_level::Low> float_value{42.5f};
+    obfxx(float) const value{42.5f};
     for (auto _ : state) {
-        benchmark::DoNotOptimize(float_value.get());
+        benchmark::DoNotOptimize(value.get());
     }
 }
 BENCHMARK(BM_FloatGet_Low);
 
 static void BM_FloatGet_Medium(benchmark::State& state) {
-    obfuscxx<float, 1, obf_level::Medium> float_value{42.5f};
+    obfxx(float, obf_level::medium) const value{42.5f};
     for (auto _ : state) {
-        benchmark::DoNotOptimize(float_value.get());
+        benchmark::DoNotOptimize(value.get());
     }
 }
 BENCHMARK(BM_FloatGet_Medium);
 
 static void BM_FloatGet_High(benchmark::State& state) {
-    obfuscxx<float, 1, obf_level::High> float_value{42.5f};
+    obfxx(float, obf_level::high) const value{42.5f};
     for (auto _ : state) {
-        benchmark::DoNotOptimize(float_value.get());
+        benchmark::DoNotOptimize(value.get());
     }
 }
 BENCHMARK(BM_FloatGet_High);
 
 static void BM_StringGet_Low(benchmark::State& state) {
-    obfuscxx<char, 10, obf_level::Low> str("benchmark");
+    auto constexpr str = obfxxo("benchmark");
     for (auto _ : state) {
         benchmark::DoNotOptimize(str.to_string().c_str());
     }
@@ -80,7 +80,7 @@ static void BM_StringGet_Low(benchmark::State& state) {
 BENCHMARK(BM_StringGet_Low);
 
 static void BM_StringGet_Medium(benchmark::State& state) {
-    obfuscxx<char, 10, obf_level::Medium> str("benchmark");
+    auto constexpr str = obfxxo("benchmark", obf_level::medium);
     for (auto _ : state) {
         benchmark::DoNotOptimize(str.to_string().c_str());
     }
@@ -88,7 +88,7 @@ static void BM_StringGet_Medium(benchmark::State& state) {
 BENCHMARK(BM_StringGet_Medium);
 
 static void BM_StringGet_High(benchmark::State& state) {
-    obfuscxx<char, 10, obf_level::High> str("benchmark");
+    auto constexpr str = obfxxo("benchmark", obf_level::high);
     for (auto _ : state) {
         benchmark::DoNotOptimize(str.to_string().c_str());
     }
@@ -96,7 +96,7 @@ static void BM_StringGet_High(benchmark::State& state) {
 BENCHMARK(BM_StringGet_High);
 
 static void BM_WStringGet_Low(benchmark::State& state) {
-    obfuscxx<wchar_t, 10, obf_level::Low> str(L"benchmark");
+    auto constexpr str = obfxxo(L"benchmark");
     for (auto _ : state) {
         benchmark::DoNotOptimize(str.to_string().c_str());
     }
@@ -104,7 +104,7 @@ static void BM_WStringGet_Low(benchmark::State& state) {
 BENCHMARK(BM_WStringGet_Low);
 
 static void BM_WStringGet_Medium(benchmark::State& state) {
-    obfuscxx<wchar_t, 10, obf_level::Medium> str(L"benchmark");
+    auto constexpr str = obfxxo(L"benchmark", obf_level::medium);
     for (auto _ : state) {
         benchmark::DoNotOptimize(str.to_string().c_str());
     }
@@ -112,7 +112,7 @@ static void BM_WStringGet_Medium(benchmark::State& state) {
 BENCHMARK(BM_WStringGet_Medium);
 
 static void BM_WStringGet_High(benchmark::State& state) {
-    obfuscxx<wchar_t, 10, obf_level::High> str(L"benchmark");
+    auto constexpr str = obfxxo(L"benchmark", obf_level::high);
     for (auto _ : state) {
         benchmark::DoNotOptimize(str.to_string().c_str());
     }
@@ -120,10 +120,10 @@ static void BM_WStringGet_High(benchmark::State& state) {
 BENCHMARK(BM_WStringGet_High);
 
 static void BM_ArrayIteration_Low(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::Low> array{};
+    obfxx(int[100]) const array{};
     for (auto _ : state) {
         int sum = 0;
-        for (auto val : array) {
+        for (auto const val : array) {
             sum += val;
         }
         benchmark::DoNotOptimize(sum);
@@ -132,10 +132,10 @@ static void BM_ArrayIteration_Low(benchmark::State& state) {
 BENCHMARK(BM_ArrayIteration_Low);
 
 static void BM_ArrayIteration_Medium(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::Medium> array{};
+    obfxx(int[100], obf_level::medium) const array{};
     for (auto _ : state) {
         int sum = 0;
-        for (auto val : array) {
+        for (auto const val : array) {
             sum += val;
         }
         benchmark::DoNotOptimize(sum);
@@ -144,10 +144,10 @@ static void BM_ArrayIteration_Medium(benchmark::State& state) {
 BENCHMARK(BM_ArrayIteration_Medium);
 
 static void BM_ArrayIteration_High(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::High> array{};
+    obfxx(int[100], obf_level::high) const array{};
     for (auto _ : state) {
         int sum = 0;
-        for (auto val : array) {
+        for (auto const val : array) {
             sum += val;
         }
         benchmark::DoNotOptimize(sum);
@@ -156,7 +156,7 @@ static void BM_ArrayIteration_High(benchmark::State& state) {
 BENCHMARK(BM_ArrayIteration_High);
 
 static void BM_ArrayCopyTo_Low(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::Low> array{};
+    obfxx(int[100]) const array{};
     for (auto _ : state) {
         benchmark::DoNotOptimize(array.to_array());
     }
@@ -164,7 +164,7 @@ static void BM_ArrayCopyTo_Low(benchmark::State& state) {
 BENCHMARK(BM_ArrayCopyTo_Low);
 
 static void BM_ArrayCopyTo_Medium(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::Medium> array{};
+    obfxx(int[100], obf_level::medium) const array{};
     for (auto _ : state) {
         benchmark::DoNotOptimize(array.to_array());
     }
@@ -172,7 +172,7 @@ static void BM_ArrayCopyTo_Medium(benchmark::State& state) {
 BENCHMARK(BM_ArrayCopyTo_Medium);
 
 static void BM_ArrayCopyTo_High(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::High> array{};
+    obfxx(int[100], obf_level::high) const array{};
     for (auto _ : state) {
         benchmark::DoNotOptimize(array.to_array());
     }
@@ -180,7 +180,7 @@ static void BM_ArrayCopyTo_High(benchmark::State& state) {
 BENCHMARK(BM_ArrayCopyTo_High);
 
 static void BM_ArrayGet_Low(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::Low> array{};
+    obfxx(int[100]) const array{};
     for (auto _ : state) {
         benchmark::DoNotOptimize(array.get(50));
     }
@@ -188,7 +188,7 @@ static void BM_ArrayGet_Low(benchmark::State& state) {
 BENCHMARK(BM_ArrayGet_Low);
 
 static void BM_ArrayGet_Medium(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::Medium> array{};
+    obfxx(int[100], obf_level::medium) const array{};
     for (auto _ : state) {
         benchmark::DoNotOptimize(array.get(50));
     }
@@ -196,7 +196,7 @@ static void BM_ArrayGet_Medium(benchmark::State& state) {
 BENCHMARK(BM_ArrayGet_Medium);
 
 static void BM_ArrayGet_High(benchmark::State& state) {
-    obfuscxx<int, 100, obf_level::High> array{};
+    obfxx(int[100], obf_level::high) const array{};
     for (auto _ : state) {
         benchmark::DoNotOptimize(array.get(50));
     }

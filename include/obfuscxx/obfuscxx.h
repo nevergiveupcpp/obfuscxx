@@ -130,7 +130,7 @@ namespace ngu {
             return hash;
         }
 
-        OBFUSCXX_FORCEINLINE constexpr std::uint64_t rol64(std::uint64_t x, int n) {
+        OBFUSCXX_FORCEINLINE constexpr std::uint64_t rol64(const std::uint64_t x, int n) {
             n &= 63;
             if (n == 0) {
                 return x;
@@ -138,7 +138,7 @@ namespace ngu {
             return (x << n) | (x >> (64 - n));
         }
 
-        OBFUSCXX_FORCEINLINE constexpr std::uint64_t ror64(std::uint64_t x, int n) {
+        OBFUSCXX_FORCEINLINE constexpr std::uint64_t ror64(const std::uint64_t x, int n) {
             n &= 63;
             if (n == 0) {
                 return x;
@@ -156,84 +156,84 @@ namespace ngu {
 #if defined(__aarch64__) || defined(_M_ARM64)
     template<> struct simd<uint32x4_t> {
         using vec = uint32x4_t;
-        static OBFUSCXX_FORCEINLINE vec shl4(vec v) {
+        static OBFUSCXX_FORCEINLINE vec shl4(const vec v) {
             return vshlq_n_u32(v, 4);
         }
-        static OBFUSCXX_FORCEINLINE vec shr5(vec v) {
+        static OBFUSCXX_FORCEINLINE vec shr5(const vec v) {
             return vshrq_n_u32(v, 5);
         }
-        static OBFUSCXX_FORCEINLINE vec vxor(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vxor(const vec a, const vec b) {
             return veorq_u32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec vadd(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vadd(const vec a, const vec b) {
             return vaddq_u32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec vsub(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vsub(const vec a, const vec b) {
             return vsubq_u32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec broadcast(std::uint32_t v) {
+        static OBFUSCXX_FORCEINLINE vec broadcast(const std::uint32_t v) {
             return vdupq_n_u32(v);
         }
-        static OBFUSCXX_FORCEINLINE vec from_scalar(std::uint32_t v) {
+        static OBFUSCXX_FORCEINLINE vec from_scalar(const std::uint32_t v) {
             return vdupq_n_u32(v);
         }
-        static OBFUSCXX_FORCEINLINE std::uint32_t to_scalar(vec v) {
+        static OBFUSCXX_FORCEINLINE std::uint32_t to_scalar(const vec v) {
             return vgetq_lane_u32(v, 0);
         }
     };
 #else
     template<> struct simd<__m128i> {
         using vec = __m128i;
-        static OBFUSCXX_FORCEINLINE vec shl4(vec v) {
+        static OBFUSCXX_FORCEINLINE vec shl4(const vec v) {
             return _mm_slli_epi32(v, 4);
         }
-        static OBFUSCXX_FORCEINLINE vec shr5(vec v) {
+        static OBFUSCXX_FORCEINLINE vec shr5(const vec v) {
             return _mm_srli_epi32(v, 5);
         }
-        static OBFUSCXX_FORCEINLINE vec vxor(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vxor(const vec a, const vec b) {
             return _mm_xor_si128(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec vadd(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vadd(const vec a, const vec b) {
             return _mm_add_epi32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec vsub(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vsub(const vec a, const vec b) {
             return _mm_sub_epi32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec broadcast(std::uint32_t v) {
+        static OBFUSCXX_FORCEINLINE vec broadcast(const std::uint32_t v) {
             return _mm_set1_epi32(v);
         }
-        static OBFUSCXX_FORCEINLINE vec from_scalar(std::uint32_t v) {
+        static OBFUSCXX_FORCEINLINE vec from_scalar(const std::uint32_t v) {
             return _mm_cvtsi32_si128(v);
         }
-        static OBFUSCXX_FORCEINLINE std::uint32_t to_scalar(vec v) {
+        static OBFUSCXX_FORCEINLINE std::uint32_t to_scalar(const vec v) {
             return _mm_cvtsi128_si32(v);
         }
     };
 #if OBFUSCXX_HAS_AVX2
     template<> struct simd<__m256i> {
         using vec = __m256i;
-        static OBFUSCXX_FORCEINLINE vec shl4(vec v) {
+        static OBFUSCXX_FORCEINLINE vec shl4(const vec v) {
             return _mm256_slli_epi32(v, 4);
         }
-        static OBFUSCXX_FORCEINLINE vec shr5(vec v) {
+        static OBFUSCXX_FORCEINLINE vec shr5(const vec v) {
             return _mm256_srli_epi32(v, 5);
         }
-        static OBFUSCXX_FORCEINLINE vec vxor(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vxor(const vec a, const vec b) {
             return _mm256_xor_si256(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec vadd(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vadd(const vec a, const vec b) {
             return _mm256_add_epi32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec vsub(vec a, vec b) {
+        static OBFUSCXX_FORCEINLINE vec vsub(const vec a, const vec b) {
             return _mm256_sub_epi32(a, b);
         }
-        static OBFUSCXX_FORCEINLINE vec broadcast(std::uint32_t v) {
+        static OBFUSCXX_FORCEINLINE vec broadcast(const std::uint32_t v) {
             return _mm256_set1_epi32(v);
         }
-        static OBFUSCXX_FORCEINLINE vec from_scalar(std::uint32_t v) {
+        static OBFUSCXX_FORCEINLINE vec from_scalar(const std::uint32_t v) {
             return _mm256_set1_epi32(v);
         }
-        static OBFUSCXX_FORCEINLINE std::uint32_t to_scalar(vec v) {
+        static OBFUSCXX_FORCEINLINE std::uint32_t to_scalar(const vec v) {
             return _mm256_extract_epi32(v, 0);
         }
     };
@@ -257,19 +257,35 @@ namespace ngu {
     ))
 #endif
 
-    enum class obf_level : std::uint8_t { Low, Medium, High };
-    template<class T, obf_level Level = obf_level::Low, std::uint64_t Entropy = OBFUSCXX_ENTROPY> class obfuscxx {
-        using Type = std::remove_extent_t<T>;
-        static constexpr std::size_t type_size = std::is_array_v<T> ? std::extent_v<T> : 1;
+    /// The obfuscation levels are based on the number of XTEA rounds. The more rounds, the more iterations are
+    /// performed on the expanded state
+    enum class obf_level : std::uint8_t {
+        /// 2 xtea rounds
+        low,
+        /// 6 xtea rounds
+        medium,
+        /// a random number of xtea rounds, between 8 and 32
+        high
+    };
 
-        static constexpr bool is_array = std::is_array_v<T>;
+    template<class RawT, obf_level Level = obf_level::low, std::uint64_t Entropy = 0> class obfuscxx {
+        template<std::uint64_t E> using rebind = obfuscxx<RawT, Level, E>;
+
+        static_assert(Entropy != 0, "Entropy must not be zero, use the specified macros");
+
+        using type = std::remove_extent_t<RawT>;
+
+        static constexpr bool is_array = std::is_array_v<RawT>;
         static constexpr bool is_single = !is_array;
-        static constexpr bool is_single_pointer = std::is_pointer_v<Type> && type_size == 1;
-        static constexpr bool is_char = std::is_same_v<Type, char> || std::is_same_v<Type, const char>;
-        static constexpr bool is_wchar = std::is_same_v<Type, wchar_t> || std::is_same_v<Type, const wchar_t>;
+        static constexpr bool is_single_pointer = std::is_pointer_v<type> && is_single;
+        static constexpr bool is_char = std::is_same_v<type, char> || std::is_same_v<type, const char>;
+        static constexpr bool is_wchar = std::is_same_v<type, wchar_t> || std::is_same_v<type, const wchar_t>;
 
+        static constexpr std::size_t type_size = std::is_array_v<RawT> ? std::extent_v<RawT> : 1;
+
+        static constexpr std::size_t simd_alignment = OBFUSCXX_HAS_AVX2 ? 32 : 16;
         static constexpr std::size_t storage_multiple = OBFUSCXX_HAS_AVX2 ? 8 : 4;
-        static constexpr std::size_t storage_alignment = OBFUSCXX_HAS_AVX2 ? 32 : 16;
+        static constexpr std::size_t storage_alignment = is_array ? simd_alignment : alignof(std::uint64_t);
         static constexpr std::size_t storage_size =
             is_array ? detail::align_up(type_size, storage_multiple) : type_size;
 
@@ -292,13 +308,13 @@ namespace ngu {
         static constexpr std::uint64_t unique_index = seed & iv_size;
         static constexpr std::uint64_t unique_value = iv[unique_index];
 
-        static constexpr std::uint32_t xtea_rounds = (Level == obf_level::Low)      ? 2
-                                                     : (Level == obf_level::Medium) ? 6
+        static constexpr std::uint32_t xtea_rounds = (Level == obf_level::low)      ? 2
+                                                     : (Level == obf_level::medium) ? 6
                                                                                     : (8 + ((unique_value % 13) * 2));
 
         static constexpr std::uint32_t xtea_delta = (0x9E3779B9 ^ static_cast<std::uint32_t>(unique_value)) | 1;
 
-        static constexpr std::uint64_t encrypt(Type value) {
+        static constexpr std::uint64_t encrypt(type value) {
             std::uint64_t val = to_uint64(value);
 
             std::uint32_t v0 = static_cast<std::uint32_t>(val);
@@ -325,7 +341,7 @@ namespace ngu {
             return S::vsub(vb, temp);
         }
 
-        template<typename Vec> static OBFUSCXX_FORCEINLINE Type decrypt_scalar(std::uint32_t v0, std::uint32_t v1) {
+        template<typename Vec> static OBFUSCXX_FORCEINLINE type decrypt_scalar(std::uint32_t v0, std::uint32_t v1) {
             using S = simd<Vec>;
             auto sv0 = S::from_scalar(v0);
             auto sv1 = S::from_scalar(v1);
@@ -349,7 +365,7 @@ namespace ngu {
             }
         }
 
-        static OBFUSCXX_FORCEINLINE Type decrypt(std::uint64_t value) {
+        static OBFUSCXX_FORCEINLINE type decrypt(std::uint64_t value) {
             OBFUSCXX_MEM_BARRIER(value)
 
             auto const v0 = static_cast<std::uint32_t>(value);
@@ -372,7 +388,7 @@ namespace ngu {
         }
 
         static OBFUSCXX_FORCEINLINE void decrypt_vectorized(
-            const volatile std::uint64_t* src, Type* dst, std::size_t count
+            const volatile std::uint64_t* src, type* dst, std::size_t count
         ) {
             std::size_t const aligned_count = detail::align_up(count, storage_multiple);
 
@@ -496,11 +512,11 @@ namespace ngu {
 #endif
         }
 
-        static constexpr std::uint64_t to_uint64(Type value) {
-            if constexpr (std::is_pointer_v<Type>) {
+        static constexpr std::uint64_t to_uint64(type value) {
+            if constexpr (std::is_pointer_v<type>) {
                 return reinterpret_cast<std::uint64_t>(value);
-            } else if constexpr (std::is_floating_point_v<Type>) {
-                if constexpr (sizeof(Type) == 4) {
+            } else if constexpr (std::is_floating_point_v<type>) {
+                if constexpr (sizeof(type) == 4) {
                     return __builtin_bit_cast(std::uint32_t, value);
                 } else {
                     return __builtin_bit_cast(std::uint64_t, value);
@@ -510,17 +526,17 @@ namespace ngu {
             }
         }
 
-        static OBFUSCXX_FORCEINLINE Type from_uint64(std::uint64_t value) {
-            if constexpr (std::is_pointer_v<Type>) {
-                return reinterpret_cast<Type>(value);
-            } else if constexpr (std::is_floating_point_v<Type>) {
-                if constexpr (sizeof(Type) == 4) {
-                    return __builtin_bit_cast(Type, static_cast<std::uint32_t>(value));
+        static OBFUSCXX_FORCEINLINE type from_uint64(std::uint64_t value) {
+            if constexpr (std::is_pointer_v<type>) {
+                return reinterpret_cast<type>(value);
+            } else if constexpr (std::is_floating_point_v<type>) {
+                if constexpr (sizeof(type) == 4) {
+                    return __builtin_bit_cast(type, static_cast<std::uint32_t>(value));
                 } else {
-                    return __builtin_bit_cast(Type, value);
+                    return __builtin_bit_cast(type, value);
                 }
             } else {
-                return static_cast<Type>(value);
+                return static_cast<type>(value);
             }
         }
 
@@ -551,29 +567,29 @@ namespace ngu {
             }
         }
 
-        explicit consteval obfuscxx(Type val) : obfuscxx(passkey{}) {
+        explicit consteval obfuscxx(type val) : obfuscxx(passkey{}) {
             storage_[0] = encrypt(val);
         }
 
-        explicit consteval obfuscxx(Type (&arr)[type_size]) : obfuscxx(passkey{}) {
+        explicit consteval obfuscxx(type (&arr)[type_size]) : obfuscxx(passkey{}) {
             for (std::size_t i{}; i < type_size; ++i) {
                 storage_[i] = encrypt(arr[i]);
             }
         }
 
-        explicit consteval obfuscxx(const Type (&arr)[type_size]) : obfuscxx(passkey{}) {
+        explicit consteval obfuscxx(const type (&arr)[type_size]) : obfuscxx(passkey{}) {
             for (std::size_t i{}; i < type_size; ++i) {
                 storage_[i] = encrypt(arr[i]);
             }
         }
 
-        consteval obfuscxx(const std::initializer_list<Type>& list) : obfuscxx(passkey{}) {
+        consteval obfuscxx(const std::initializer_list<type>& list) : obfuscxx(passkey{}) {
             for (std::size_t i{}; const auto& v : list) {
                 storage_[i++] = encrypt(v);
             }
         }
 
-        OBFUSCXX_FORCEINLINE Type get() const
+        OBFUSCXX_FORCEINLINE type get() const
             requires is_single
         {
             volatile const std::uint64_t* ptr = &storage_[0];
@@ -581,7 +597,7 @@ namespace ngu {
             return decrypt(val);
         }
 
-        OBFUSCXX_FORCEINLINE Type get(std::size_t i) const
+        OBFUSCXX_FORCEINLINE type get(const std::size_t i) const
             requires is_array
         {
             volatile const std::uint64_t* ptr = &storage_[i];
@@ -589,26 +605,26 @@ namespace ngu {
             return decrypt(val);
         }
 
-        OBFUSCXX_FORCEINLINE void copy_to(Type* out, std::size_t count) const
+        OBFUSCXX_FORCEINLINE void copy_to(type* out, const std::size_t count) const
             requires is_array
         {
             std::size_t effective_count = (count < type_size) ? count : type_size;
             decrypt_vectorized(storage_, out, effective_count);
         }
 
-        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(Type val)
+        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(type val)
             requires is_single
         {
             storage_[0] = encrypt(val);
         }
 
-        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(Type val, std::size_t i)
+        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(type val, const std::size_t i)
             requires is_array
         {
             storage_[i] = encrypt(val);
         }
 
-        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(const std::initializer_list<Type>& list)
+        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(const std::initializer_list<type>& list)
             requires is_array
         {
             for (std::size_t i{}; const auto& val : list) {
@@ -618,39 +634,39 @@ namespace ngu {
             }
         }
 
-        OBFUSCXX_FORCEINLINE Type operator()() const
+        OBFUSCXX_FORCEINLINE type operator()() const
             requires is_single
         {
             return get();
         }
 
-        OBFUSCXX_FORCEINLINE Type operator[](std::size_t i) const
+        OBFUSCXX_FORCEINLINE type operator[](const std::size_t i) const
             requires is_array
         {
             return get(i);
         }
 
-        OBFUSCXX_FORCEINLINE obfuscxx& operator=(Type val)
+        OBFUSCXX_FORCEINLINE obfuscxx& operator=(type val)
             requires is_single
         {
             set(val);
             return *this;
         }
 
-        OBFUSCXX_FORCEINLINE obfuscxx& operator=(const std::initializer_list<Type>& list)
+        OBFUSCXX_FORCEINLINE obfuscxx& operator=(const std::initializer_list<type>& list)
             requires is_array
         {
             set(list);
             return *this;
         }
 
-        OBFUSCXX_FORCEINLINE bool operator==(const obfuscxx& rhs) const
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator==(const rebind<E>& rhs) const
             requires is_single
         {
             return get() == rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE bool operator==(const obfuscxx& rhs) const
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator==(const rebind<E>& rhs) const
             requires is_array
         {
             for (std::size_t i{}; i < type_size; ++i) {
@@ -661,73 +677,73 @@ namespace ngu {
             return true;
         }
 
-        OBFUSCXX_FORCEINLINE bool operator!=(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator!=(const rebind<E>& rhs) const {
             return !(*this == rhs);
         }
 
-        OBFUSCXX_FORCEINLINE operator Type() const
+        OBFUSCXX_FORCEINLINE operator type() const
             requires is_single
         {
             return get();
         }
 
-        OBFUSCXX_FORCEINLINE bool operator<(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator<(const rebind<E>& rhs) const {
             return get() < rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE bool operator>(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator>(const rebind<E>& rhs) const {
             return get() > rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE bool operator<=(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator<=(const rebind<E>& rhs) const {
             return get() <= rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE bool operator>=(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator>=(const rebind<E>& rhs) const {
             return get() >= rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE Type operator+(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE type operator+(const rebind<E>& rhs) const {
             return get() + rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE Type operator-(const obfuscxx& rhs) const {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE type operator-(const rebind<E>& rhs) const {
             return get() - rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE Type operator*(const obfuscxx& rhs) const
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE type operator*(const rebind<E>& rhs) const
             requires(!is_single_pointer)
         {
             return get() * rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE Type operator/(const obfuscxx& rhs) const
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE type operator/(const rebind<E>& rhs) const
             requires(!is_single_pointer)
         {
             return get() / rhs.get();
         }
 
-        OBFUSCXX_FORCEINLINE obfuscxx& operator+=(const obfuscxx& rhs)
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE obfuscxx& operator+=(const rebind<E>& rhs)
             requires(!is_single_pointer)
         {
             set(get() + rhs.get());
             return *this;
         }
 
-        OBFUSCXX_FORCEINLINE obfuscxx& operator-=(const obfuscxx& rhs)
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE obfuscxx& operator-=(const rebind<E>& rhs)
             requires(!is_single_pointer)
         {
             set(get() - rhs.get());
             return *this;
         }
 
-        OBFUSCXX_FORCEINLINE Type operator->()
+        OBFUSCXX_FORCEINLINE type operator->()
             requires is_single_pointer
         {
             return get();
         }
 
-        OBFUSCXX_FORCEINLINE Type& operator*()
+        OBFUSCXX_FORCEINLINE type& operator*()
             requires is_single_pointer
         {
             return *get();
@@ -737,7 +753,7 @@ namespace ngu {
             const obfuscxx* parent;
             std::size_t index;
 
-            Type operator*() const {
+            type operator*() const {
                 return parent->get(index);
             }
 
@@ -768,11 +784,10 @@ namespace ngu {
             return type_size;
         }
 
-        template<class CharType, std::size_t N> struct string_copy {
+        template<class CharT, std::size_t N> struct string_copy {
         private:
-            static constexpr bool is_char = std::is_same_v<CharType, char> || std::is_same_v<CharType, const char>;
-            static constexpr bool is_wchar =
-                std::is_same_v<CharType, wchar_t> || std::is_same_v<CharType, const wchar_t>;
+            static constexpr bool is_char = std::is_same_v<CharT, char> || std::is_same_v<CharT, const char>;
+            static constexpr bool is_wchar = std::is_same_v<CharT, wchar_t> || std::is_same_v<CharT, const wchar_t>;
 
         public:
             operator const char*() const
@@ -786,17 +801,17 @@ namespace ngu {
                 return data;
             }
 
-            const CharType* c_str() const {
+            const CharT* c_str() const {
                 return data;
             }
-            const CharType& operator[](std::size_t i) const {
+            const CharT& operator[](std::size_t i) const {
                 return data[i];
             }
 
-            const CharType* begin() const {
+            const CharT* begin() const {
                 return data;
             }
-            const CharType* end() const {
+            const CharT* end() const {
                 return data + N;
             }
 
@@ -804,18 +819,18 @@ namespace ngu {
                 return N;
             }
 
-            CharType data[N];
+            CharT data[N];
         };
 
-        template<class ArrayType, std::size_t N> struct array_copy {
-            const ArrayType* get() const {
+        template<class ArrayT, std::size_t N> struct array_copy {
+            const ArrayT* get() const {
                 return data;
             }
 
-            const ArrayType* begin() const {
+            const ArrayT* begin() const {
                 return data;
             }
-            const ArrayType* end() const {
+            const ArrayT* end() const {
                 return data + N;
             }
 
@@ -823,16 +838,16 @@ namespace ngu {
                 return N;
             }
             constexpr std::size_t size_bytes() const {
-                return N * sizeof(ArrayType);
+                return N * sizeof(ArrayT);
             }
 
-            ArrayType data[N];
+            ArrayT data[N];
         };
 
-        OBFUSCXX_FORCEINLINE string_copy<Type, type_size> to_string() const
+        OBFUSCXX_FORCEINLINE string_copy<type, type_size> to_string() const
             requires(is_char || is_wchar)
         {
-            string_copy<Type, type_size> result{};
+            string_copy<type, type_size> result{};
             if constexpr (is_array) {
                 copy_to(result.data, type_size);
             } else {
@@ -841,10 +856,10 @@ namespace ngu {
             return result;
         }
 
-        OBFUSCXX_FORCEINLINE array_copy<Type, type_size> to_array() const
+        OBFUSCXX_FORCEINLINE array_copy<type, type_size> to_array() const
             requires(is_array)
         {
-            array_copy<Type, type_size> result{};
+            array_copy<type, type_size> result{};
             copy_to(result.data, type_size);
             return result;
         }
@@ -854,50 +869,50 @@ namespace ngu {
     };
 } // namespace ngu
 
+#define OBFXX_EXPAND(x) x
+#define OBFXX_GET(_1, _2, NAME, ...) NAME
+
+#define OBFXX_T1(type) ngu::obfuscxx<type, ngu::obf_level::low, OBFUSCXX_ENTROPY>
+#define OBFXX_T2(type, level) ngu::obfuscxx<type, level, OBFUSCXX_ENTROPY>
+
+#define OBFXX_O1(obj) (ngu::obfuscxx<std::remove_cvref_t<decltype(obj)>, ngu::obf_level::low, OBFUSCXX_ENTROPY>(obj))
+#define OBFXX_O2(obj, level) (ngu::obfuscxx<std::remove_cvref_t<decltype(obj)>, level, OBFUSCXX_ENTROPY>(obj))
+
+#define OBFXX_V1(val) (OBFXX_O1(val).get())
+#define OBFXX_V2(val, level) (OBFXX_O2(val, level).get())
+
+#define OBFXX_S1(str) (OBFXX_O1(str).to_string().c_str())
+#define OBFXX_S2(str, level) (OBFXX_O2(str, level).to_string().c_str())
+
+/// Obfuscate type (low by default; pass ngu::obf_level::{medium,high} as second arg)
+#define obfxx(...) OBFXX_EXPAND(OBFXX_GET(__VA_ARGS__, OBFXX_T2, OBFXX_T1)(__VA_ARGS__))
+
+/// Obfuscate value (low by default; pass ngu::obf_level::{medium,high} as second arg)
+#define obfxxv(...) OBFXX_EXPAND(OBFXX_GET(__VA_ARGS__, OBFXX_V2, OBFXX_V1)(__VA_ARGS__))
+
+/// Obfuscate string (low by default; pass ngu::obf_level::{medium,high} as second arg)
+#define obfxxs(...) OBFXX_EXPAND(OBFXX_GET(__VA_ARGS__, OBFXX_S2, OBFXX_S1)(__VA_ARGS__))
+
+/// Obfuscate objects (low by default; pass ngu::obf_level::{medium,high} as second arg)
+#define obfxxo(...) OBFXX_EXPAND(OBFXX_GET(__VA_ARGS__, OBFXX_O2, OBFXX_O1)(__VA_ARGS__))
+
 #if defined(__clang__) || defined(__GNUC__)
+#define OBFXX_LITERAL(str, type, level) ngu::obfuscxx<type, level, OBFUSCXX_ENTROPY>(str).to_string()
 
-#define OBFUSCXX_LITERAL(str, type, size, level) ngu::obfuscxx<type, size, level, OBFUSCXX_ENTROPY>(str).to_string()
-
-/// Obfuscate string literal (Low level)
-template<typename CharType, CharType... Chars> constexpr auto operator""_obf() {
-    constexpr CharType str[] = {Chars..., '\0'};
-    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Low);
+/// Obfuscate string literal (low level)
+template<typename CharT, CharT... Chars> constexpr auto operator""_obf() {
+    constexpr CharT str[] = {Chars..., '\0'};
+    return OBFXX_LITERAL(str, std::remove_cvref_t<decltype(str)>, ngu::obf_level::low);
 }
-/// Obfuscate string literal (Medium level)
-template<typename CharType, CharType... Chars> constexpr auto operator""_obfm() {
-    constexpr CharType str[] = {Chars..., '\0'};
-    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::Medium);
+/// Obfuscate string literal (medium level)
+template<typename CharT, CharT... Chars> constexpr auto operator""_obfm() {
+    constexpr CharT str[] = {Chars..., '\0'};
+    return OBFXX_LITERAL(str, std::remove_cvref_t<decltype(str)>, ngu::obf_level::medium);
 }
-/// Obfuscate string literal (High level)
-template<typename CharType, CharType... Chars> constexpr auto operator""_obfh() {
-    constexpr CharType str[] = {Chars..., '\0'};
-    return OBFUSCXX_LITERAL(str, CharType, sizeof...(Chars) + 1, ngu::obf_level::High);
+/// Obfuscate string literal (high level)
+template<typename CharT, CharT... Chars> constexpr auto operator""_obfh() {
+    constexpr CharT str[] = {Chars..., '\0'};
+    return OBFXX_LITERAL(str, std::remove_cvref_t<decltype(str)>, ngu::obf_level::high);
 }
-
 #endif
-
-#define OBFUSCXX_VAL_EX(val, level)                                                                                    \
-    ngu::obfuscxx<std::remove_cvref_t<decltype(val)>, 1, level, OBFUSCXX_ENTROPY>(val).get()
-#define OBFUSCXX_STR_EX(str, level)                                                                                    \
-    ngu::obfuscxx<std::remove_cvref_t<decltype(str[0])>, sizeof(str) / sizeof(str[0]), level, OBFUSCXX_ENTROPY>(str)   \
-        .to_string()                                                                                                   \
-        .c_str()
-
-/// Obfuscate value (Low level)
-#define obfusv(val) OBFUSCXX_VAL_EX(val, ngu::obf_level::Low)
-/// Obfuscate string (Low level)
-#define obfuss(str) OBFUSCXX_STR_EX(str, ngu::obf_level::Low)
-
-/// Obfuscate value (Medium level)
-#define obfusvm(val) OBFUSCXX_VAL_EX(val, ngu::obf_level::Medium)
-/// Obfuscate string (Medium level)
-#define obfussm(str) OBFUSCXX_STR_EX(str, ngu::obf_level::Medium)
-
-/// Obfuscate value (High level)
-#define obfusvh(val) OBFUSCXX_VAL_EX(val, ngu::obf_level::High)
-/// Obfuscate string (High level)
-#define obfussh(str) OBFUSCXX_STR_EX(str, ngu::obf_level::High)
-
-#define obfusf(type, size, level) ngu::obfuscxx<type, size, level, OBFUSCXX_ENTROPY>
-
 #endif // NGU_OBFUSCXX_H

@@ -1,22 +1,39 @@
+# IDE
 .vs/
-*.sln.docstates
-Debug/
-Release/
-x64/
-x86/
-build/
-install/
 .idea/
 
-*.o
-*.obj
+# Executables
 *.exe
-*.dll
-*.pdb
-*.ilk
+*.out
+*.app
+
+# Build directories
+build/
+Build/
+build-*/
+
+# Development
+development/
+cmake/development.cmake
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Temporary files
+*.tmp
 *.log
-*.tlog
-*.user
-*.iml
-*.xml
+*.bak
+*.swp
 *.bat
+
+# vcpkg
+vcpkg_installed/
+
+# test output & cache
+Testing/
+.cache/

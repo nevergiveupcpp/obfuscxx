@@ -2,7 +2,8 @@ Checks: >
   readability-identifier-naming,
   readability-implicit-bool-conversion,
   misc-const-correctness,
-  -clang-diagnostic-error
+  -clang-diagnostic-error,
+  -clang-diagnostic-gnu-string-literal-operator-template
 
 CheckOptions:
   - key: readability-identifier-naming.ClassCase
@@ -38,7 +39,7 @@ CheckOptions:
     value: '^[A-Z][A-Z0-9_]*$'
 
   - key: readability-identifier-naming.EnumConstantCase
-    value: CamelCase
+    value: lower_case
 
   - key: readability-identifier-naming.EnumCase
     value: lower_case

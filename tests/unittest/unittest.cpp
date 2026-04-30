@@ -26,7 +26,7 @@
 using namespace ngu;
 
 TEST(ObfuscxxTest, IntegerValue) {
-    obfuscxx<int> value{100};
+    obfxx(int) value{100};
     EXPECT_EQ(value.get(), 100);
 
     value = 50;
@@ -34,39 +34,41 @@ TEST(ObfuscxxTest, IntegerValue) {
 }
 
 TEST(ObfuscxxTest, FloatValue) {
-    obfuscxx<float> value{1.5f};
+    obfxx(float) const value{1.5f};
     EXPECT_FLOAT_EQ(value.get(), 1.5f);
 }
 
 TEST(ObfuscxxTest, ArrayIteration) {
-    obfuscxx<int, 4> array{1, 2, 3, 4};
-    int expected[] = {1, 2, 3, 4};
-    int i = 0;
-    for (auto val : array) {
+    obfxx(int[4]) const array{1, 2, 3, 4};
+    constexpr int expected[] = {1, 2, 3, 4};
+
+    for (int i{}; auto val : array) {
         EXPECT_EQ(val, expected[i++]);
     }
 }
 
 TEST(ObfuscxxTest, ToString) {
-    obfuscxx str("small test string");
-    EXPECT_STREQ(str.to_string(), "small test string");
+    constexpr auto narrow_str = obfxxo("frost on the morning grass");
+    EXPECT_STREQ(narrow_str.to_string(), "frost on the morning grass");
 
-    obfuscxx wstr(L"small test string");
-    EXPECT_STREQ(wstr.to_string(), L"small test string");
+    constexpr auto wide_str = obfxxo(L"frost on the morning grass");
+    EXPECT_STREQ(wide_str.to_string(), L"frost on the morning grass");
 }
 
 TEST(ObfuscxxTest, PointerValue) {
-    obfuscxx<int*> pointer{};
+    obfxx(int*) pointer{};
     pointer = new int{101};
+
     EXPECT_NE(pointer.get(), nullptr);
     EXPECT_EQ(*pointer.get(), 101);
+
     delete pointer.get();
 }
 
 TEST(ObfuscxxTest, ComparisonOperators) {
-    obfuscxx<int> a{100};
-    obfuscxx<int> b{100};
-    obfuscxx<int> c{50};
+    obfxx(int) a{100};
+    obfxx(int) b{100};
+    obfxx(int) c{50};
 
     EXPECT_TRUE(a == b);
     EXPECT_FALSE(a == c);
@@ -79,8 +81,8 @@ TEST(ObfuscxxTest, ComparisonOperators) {
 }
 
 TEST(ObfuscxxTest, ArithmeticOperators) {
-    obfuscxx<int> a{10};
-    obfuscxx<int> b{5};
+    obfxx(int) a{10};
+    obfxx(int) b{5};
 
     EXPECT_EQ(a + b, 15);
     EXPECT_EQ(a - b, 5);
@@ -95,20 +97,20 @@ TEST(ObfuscxxTest, ArithmeticOperators) {
 }
 
 TEST(ObfuscxxTest, ObfuscationLevels) {
-    obfuscxx<int, 1, obf_level::Low> low{42};
-    obfuscxx<int, 1, obf_level::Medium> medium{42};
-    obfuscxx<int, 1, obf_level::High> high{42};
+    obfxx(int, obf_level::low) const low{50};
+    obfxx(int, obf_level::medium) const medium{50};
+    obfxx(int, obf_level::high) const high{50};
 
-    EXPECT_EQ(low.get(), 42);
-    EXPECT_EQ(medium.get(), 42);
-    EXPECT_EQ(high.get(), 42);
+    EXPECT_EQ(low.get(), 50);
+    EXPECT_EQ(medium.get(), 50);
+    EXPECT_EQ(high.get(), 50);
 }
 
-TEST(ObfuscxxTest, EdgeCases) {
-    obfuscxx<int> max_int{INT_MAX};
-    obfuscxx<int> min_int{INT_MIN};
-    obfuscxx<int> zero{0};
-    obfuscxx<int> negative{-12345};
+TEST(ObfuscxxTest, IntegerEdgeCases) {
+    obfxx(int) const max_int{INT_MAX};
+    obfxx(int) const min_int{INT_MIN};
+    obfxx(int) const zero{0};
+    obfxx(int) const negative{-12345};
 
     EXPECT_EQ(max_int.get(), INT_MAX);
     EXPECT_EQ(min_int.get(), INT_MIN);
@@ -117,10 +119,10 @@ TEST(ObfuscxxTest, EdgeCases) {
 }
 
 TEST(ObfuscxxTest, FloatEdgeCases) {
-    obfuscxx<float> zero{0.0f};
-    obfuscxx<float> negative{-3.14f};
-    obfuscxx<float> small{0.0001f};
-    obfuscxx<float> large{123456.789f};
+    obfxx(float) const zero{0.0f};
+    obfxx(float) const negative{-3.14f};
+    obfxx(float) const small{0.0001f};
+    obfxx(float) const large{123456.789f};
 
     EXPECT_FLOAT_EQ(zero.get(), 0.0f);
     EXPECT_FLOAT_EQ(negative.get(), -3.14f);
@@ -129,20 +131,18 @@ TEST(ObfuscxxTest, FloatEdgeCases) {
 }
 
 TEST(ObfuscxxTest, ArrayOperators) {
-    obfuscxx<int, 5> array{10, 20, 30, 40, 50};
+    obfxx(int[5]) const array{10, 20, 30, 40, 50};
 
     EXPECT_EQ(array[0], 10);
     EXPECT_EQ(array[2], 30);
     EXPECT_EQ(array[4], 50);
-
     EXPECT_EQ(array.get(1), 20);
     EXPECT_EQ(array.get(3), 40);
-
     EXPECT_EQ(array.size(), 5);
 }
 
 TEST(ObfuscxxTest, ArraySet) {
-    obfuscxx<int, 3> array{1, 2, 3};
+    obfxx(int[3]) array{1, 2, 3};
 
     array.set(100, 0);
     array.set(200, 1);
@@ -154,22 +154,22 @@ TEST(ObfuscxxTest, ArraySet) {
 }
 
 TEST(ObfuscxxTest, ArrayCopyTo) {
-    obfuscxx<int, 5> array{1, 2, 3, 4, 5};
-    int output[5] = {0};
+    obfxx(int[5]) const array{1, 2, 3, 4, 5};
+    int buffer[5]{};
 
-    array.copy_to(output, 5);
+    array.copy_to(buffer, array.size());
 
     for (int i = 0; i < 5; ++i) {
-        EXPECT_EQ(output[i], i + 1);
+        EXPECT_EQ(buffer[i], i + 1);
     }
 }
 
 TEST(ObfuscxxTest, ToArray) {
-    const obfuscxx<int, 4> array{0, 1, 2, 3};
-    auto const deobf_array = array.to_array();
+    obfxx(int[4]) const array{0, 1, 2, 3};
+    auto const plain_array = array.to_array();
 
     std::array<int, 4> buffer{};
-    memcpy(buffer.data(), deobf_array.get(), deobf_array.size_bytes());
+    memcpy(buffer.data(), plain_array.get(), plain_array.size_bytes());
 
     EXPECT_EQ(buffer[0], 0);
     EXPECT_EQ(buffer[1], 1);
@@ -178,7 +178,7 @@ TEST(ObfuscxxTest, ToArray) {
 }
 
 TEST(ObfuscxxTest, ArrayAssignment) {
-    obfuscxx<int, 3> array{1, 2, 3};
+    obfxx(int[3]) array{1, 2, 3};
 
     array = {10, 20, 30};
 
@@ -188,91 +188,90 @@ TEST(ObfuscxxTest, ArrayAssignment) {
 }
 
 TEST(ObfuscxxTest, DataIsEncrypted) {
-    obfuscxx<int> value{42};
+    obfxx(int) const value{50};
 
-    const uint64_t* raw_data = reinterpret_cast<const uint64_t*>(&value);
+    auto const raw_data = reinterpret_cast<const uint64_t*>(&value);
     volatile uint64_t encrypted = *raw_data;
 
-    EXPECT_NE(encrypted, 42);
-
-    EXPECT_EQ(value.get(), 42);
+    EXPECT_NE(encrypted, 50);
+    EXPECT_EQ(value.get(), 50);
 }
 
 TEST(ObfuscxxTest, PointerOperators) {
-    obfuscxx<int*> ptr{};
-    ptr = new int{999};
+    obfxx(int*) pointer{};
+    pointer = new int{999};
 
-    EXPECT_NE(ptr.get(), nullptr);
+    EXPECT_NE(pointer.get(), nullptr);
+    EXPECT_EQ(*pointer.get(), 999);
 
-    EXPECT_EQ(*ptr.get(), 999);
+    *pointer.get() = 111;
+    EXPECT_EQ(*pointer.get(), 111);
 
-    *ptr.get() = 111;
-    EXPECT_EQ(*ptr.get(), 111);
-
-    delete ptr.get();
+    delete pointer.get();
 }
 
 TEST(ObfuscxxTest, EmptyString) {
-    obfuscxx str("");
+    constexpr auto str = obfxxo("");
     EXPECT_STREQ(str.to_string(), "");
 }
 
 TEST(ObfuscxxTest, LongString) {
-    obfuscxx str("this is a very long test string for obfuscation");
-    EXPECT_STREQ(str.to_string(), "this is a very long test string for obfuscation");
-}
+    constexpr auto str = obfxxo(
+        "The river ran calmly past the old wooden bridge, where a few fishermen waited in the morning "
+        "light, watching the wind move through the tall grass on the far bank while a heron stood "
+        "still among the reeds."
+    );
 
-TEST(ObfuscxxTest, ConstCorrectness) {
-    const obfuscxx<int> const_value{42};
-    EXPECT_EQ(const_value.get(), 42);
-    EXPECT_EQ(const_value(), 42);
+    EXPECT_STREQ(
+        str.to_string(),
+        "The river ran calmly past the old wooden bridge, where a few fishermen waited in the morning "
+        "light, watching the wind move through the tall grass on the far bank while a heron stood "
+        "still among the reeds."
+    );
 }
 
 TEST(ObfuscxxTest, IteratorOperations) {
-    obfuscxx<int, 5> array{1, 2, 3, 4, 5};
+    obfxx(int[5]) const array{1, 2, 3, 4, 5};
 
     auto it = array.begin();
     EXPECT_EQ(*it, 1);
-
     ++it;
     EXPECT_EQ(*it, 2);
 
     EXPECT_NE(it, array.end());
 
-    int count = 0;
-    for (auto it = array.begin(); it != array.end(); ++it) {
+    int count{};
+    for (auto iter = array.begin(); iter != array.end(); ++iter) {
         count++;
     }
     EXPECT_EQ(count, 5);
 }
 
 TEST(ObfuscxxTest, DifferentTypes) {
-    obfuscxx<uint64_t> u64{0xFFFFFFFFFFFFFFFF};
-    obfuscxx<int8_t> i8{-127};
-    obfuscxx<double> dbl{3.141592653589793};
+    obfxx(uint64_t) const uint64_value{0xFFFFFFFFFFFFFFFF};
+    obfxx(int8_t) const int8_value{-127};
+    obfxx(double) const double_value{3.141592653589793};
 
-    EXPECT_EQ(u64.get(), 0xFFFFFFFFFFFFFFFF);
-    EXPECT_EQ(i8.get(), -127);
-    EXPECT_DOUBLE_EQ(dbl.get(), 3.141592653589793);
+    EXPECT_EQ(uint64_value.get(), 0xFFFFFFFFFFFFFFFF);
+    EXPECT_EQ(int8_value.get(), -127);
+    EXPECT_DOUBLE_EQ(double_value.get(), 3.141592653589793);
 }
 
 TEST(ObfuscxxTest, MultipleAssignments) {
-    obfuscxx<int> value{10};
+    obfxx(int) value{10};
 
     value = 20;
     EXPECT_EQ(value.get(), 20);
-
     value = 30;
     EXPECT_EQ(value.get(), 30);
-
     value = 40;
     EXPECT_EQ(value.get(), 40);
 }
 
 TEST(ObfuscxxTest, ArrayEquality) {
-    obfuscxx<int, 3> a{1, 2, 3};
-    obfuscxx<int, 3> b{1, 2, 3};
-    obfuscxx<int, 3> c{1, 2, 4};
+    obfxx(int[3]) const a{1, 2, 3};
+    obfxx(int[3]) const b{1, 2, 3};
+    obfxx(int[3]) const c{1, 2, 4};
 
     EXPECT_TRUE(a == b);
     EXPECT_FALSE(a == c);
@@ -280,7 +279,7 @@ TEST(ObfuscxxTest, ArrayEquality) {
 }
 
 TEST(ObfuscxxTest, ImplicitConversion) {
-    obfuscxx<int> value{42};
+    obfxx(int) const value{42};
 
     int x = value;
     EXPECT_EQ(x, 42);
@@ -289,18 +288,33 @@ TEST(ObfuscxxTest, ImplicitConversion) {
     EXPECT_EQ(result, 52);
 }
 
-TEST(ObfuscxxTest, RValueDefines) {
-    EXPECT_STREQ(obfuss("small test string"), "small test string");
-    EXPECT_STREQ(obfuss(L"small test string"), L"small test string");
-    EXPECT_EQ(obfusv(52), 52);
-    EXPECT_EQ(obfusv(3.14f), 3.14f);
-    EXPECT_EQ(obfusv(-3.14f), -3.14f);
+TEST(ObfuscxxTest, InlineMacroExpressions) {
+    EXPECT_STREQ(obfxxs("river by the old bridge"), "river by the old bridge");
+    EXPECT_STREQ(obfxxs(L"river by the old bridge"), L"river by the old bridge");
+    EXPECT_STREQ(obfxxs("wind across the meadow", obf_level::medium), "wind across the meadow");
+    EXPECT_STREQ(obfxxs(L"wind across the meadow", obf_level::medium), L"wind across the meadow");
+    EXPECT_STREQ(obfxxs("birds on a wooden fence", obf_level::high), "birds on a wooden fence");
+    EXPECT_STREQ(obfxxs(L"birds on a wooden fence", obf_level::high), L"birds on a wooden fence");
+
+    EXPECT_EQ(obfxxv(52), 52);
+    EXPECT_EQ(obfxxv(52, obf_level::medium), 52);
+    EXPECT_EQ(obfxxv(52, obf_level::high), 52);
+
+    EXPECT_FLOAT_EQ(obfxxv(3.14f), 3.14f);
+    EXPECT_FLOAT_EQ(obfxxv(3.14f, obf_level::medium), 3.14f);
+    EXPECT_FLOAT_EQ(obfxxv(-3.14f, obf_level::high), -3.14f);
 }
 
 #if defined(__clang__) || defined(__GNUC__)
 TEST(ObfuscxxTest, UserDefinedLiterals) {
-    EXPECT_STREQ("small test string"_obf, "small test string");
-    EXPECT_STREQ(L"small test string"_obf, L"small test string");
+    EXPECT_STREQ("river by the old bridge"_obf, "river by the old bridge");
+    EXPECT_STREQ(L"river by the old bridge"_obf, L"river by the old bridge");
+
+    EXPECT_STREQ("wind across the meadow"_obfm, "wind across the meadow");
+    EXPECT_STREQ(L"wind across the meadow"_obfm, L"wind across the meadow");
+
+    EXPECT_STREQ("birds on a wooden fence"_obfh, "birds on a wooden fence");
+    EXPECT_STREQ(L"birds on a wooden fence"_obfh, L"birds on a wooden fence");
 }
 #endif
 
