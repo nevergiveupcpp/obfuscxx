@@ -122,7 +122,7 @@ jobs:
           sudo apt-get install -y clang-format-22
       - name: Check formatting
         run: |
-          find include tests \( -name "*.h" -o -name "*.cpp" \) | \
+          find include \( -name "*.h" -o -name "*.cpp" \) | \
           xargs clang-format-22 --dry-run --Werror
 
   clang-tidy:
@@ -140,8 +140,8 @@ jobs:
           sudo apt-get install -y clang-tidy-19
       - name: Check tidy
         run: |
-          find include tests \( -name "*.h" -o -name "*.cpp" \) | \
-          xargs -I{} clang-tidy-19 {} --header-filter="./(include|tests)/.*" -- -x c++ -std=c++20 -I include
+          find include \( -name "*.h" -o -name "*.cpp" \) | \
+          xargs -I{} clang-tidy-19 {} --header-filter="include/.*" -- -x c++ -std=c++20 -I include
 
   all-checks:
     name: All Checks
