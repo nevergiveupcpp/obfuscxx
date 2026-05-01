@@ -50,30 +50,40 @@ target_link_libraries(your_target PRIVATE obfuscxx::obfuscxx)
 ## Examples
 ### Basic
 ```cpp
-#include <obfuscxx/obfuscxx.h>
-
 int main() {
-    obfuscxx<int> int_value{ 100 };
-    std::cout << int_value.get() << '\n';
-    int_value = 50;
-    std::cout << int_value.get() << '\n';
+    using namespace ngu;
+    
+    struct asset {
+        obfxx(std::uint64_t[3], obf_level::high) hashes{
+            0x4c1aab3d,
+            0xcacaa7a5,
+            0xc6ca594e,
+        };
+        obfxx(char[11]) asset_name{"main-asset"};
+    };
 
-    obfuscxx<float> float_value{ 1.5f };
-    std::cout << float_value.get() << '\n';
+    constexpr asset at{};
 
-    obfuscxx<int, 4> array{ 1, 2, 3, 4 };
-    for (auto val : array) {
-        std::cout << val << " ";
+    for (const auto& hash : at.hashes) {
+        std::cout << hash << std::endl;
     }
-    std::cout << '\n';
 
-    obfuscxx str("Hello, World!");
-    std::cout << str.to_string() << '\n';
+    std::cout << at.asset_name.to_string() << std::endl;
 
-    obfuscxx<int*> pointer{};
-    pointer = new int{101};
-    std::cout << pointer.get() << " " << *pointer.get() << '\n';
-    delete pointer.get();
+    //...
+
+    if (constexpr auto true_phrase = obfxxo("nevergiveup"); strcmp(phrase, true_phrase.to_string()) != 0) {
+        exit(1);
+    }
+
+    //...
+
+    std::cout << obfxxs("just use it") << std::endl;
+    std::cout << obfxxs("to", obf_level::medium) << std::endl;
+    std::cout << obfxxs("protect your data", obf_level::high) << std::endl;
+
+    std::cout << obfxxv(2000) << std::endl;
+    std::cout << obfxxv(2000, obf_level::high) << std::endl;
 }
 ```
 
@@ -82,17 +92,9 @@ int main() {
 #include <obfuscxx/obfuscxx.h>
 
 int main() {
-    std::cout << "Hello, World!"_obf << '\n';
-}
-```
-
-### Macros
-```cpp
-#include <obfuscxx/obfuscxx.h>
-
-int main() {
-    std::cout << obfusv(42) << " " << obfusv(3.14159f) << '\n';
-    std::cout << obfuss("Hello, World!") << '\n';
+    std::cout << "Hello, World!"_obf  << '\n';   // Low level
+    std::cout << "It works!"_obfm << '\n';       // Medium level
+    std::cout << "Goodbye, World!"_obfh << '\n'; // High level
 }
 ```
 
