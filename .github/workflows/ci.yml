@@ -73,6 +73,8 @@ jobs:
     name: Benchmark
     runs-on: windows-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      BENCHMARK_BIN_DIR: tests/benchmark/build/msvc-x64/Release
 
     steps:
       - uses: actions/checkout@v4
@@ -93,14 +95,15 @@ jobs:
         run: cmake --build --preset msvc-x64 --config Release
 
       - name: Run
-        working-directory: tests/benchmark/build/msvc-x64/Release
-        run: ./benchmark-obfuscxx.exe --benchmark_format=json --benchmark_out=result.json
+        working-directory: ${{ env.BENCHMARK_BIN_DIR }}
+        run: ./benchmark-obfuscxx.exe --benchmark_filter="BM_.*_(Low|Medium)" --benchmark_format=json --benchmark_out=result.json
 
-      - name: Store results
+      - name: Store
         uses: benchmark-action/github-action-benchmark@v1
         with:
+          name: Benchmark
           tool: googlecpp
-          output-file-path: tests/benchmark/build/msvc-x64/Release/result.json
+          output-file-path: ${{ env.BENCHMARK_BIN_DIR }}/result_stable.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           comment-on-alert: true
