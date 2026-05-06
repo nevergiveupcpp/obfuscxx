@@ -103,7 +103,7 @@ jobs:
         with:
           name: Benchmark
           tool: googlecpp
-          output-file-path: ${{ env.BENCHMARK_BIN_DIR }}/result_stable.json
+          output-file-path: ${{ env.BENCHMARK_BIN_DIR }}/result.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           comment-on-alert: true
