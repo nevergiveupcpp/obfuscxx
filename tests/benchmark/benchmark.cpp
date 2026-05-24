@@ -21,6 +21,10 @@
 #include <benchmark/benchmark.h>
 #include <obfuscxx/obfuscxx.h>
 
+/// Make benchmark entropy deterministic
+#undef OBFUSCXX_ENTROPY
+#define OBFUSCXX_ENTROPY 0x3eb80f3d9c4112ca
+
 using namespace ngu;
 
 static void BM_IntegerGet_Low(benchmark::State& state) {

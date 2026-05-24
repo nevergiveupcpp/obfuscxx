@@ -96,7 +96,7 @@ jobs:
 
       - name: Run
         working-directory: ${{ env.BENCHMARK_BIN_DIR }}
-        run: ./benchmark-obfuscxx.exe --benchmark_filter="BM_.*_(Low|Medium)" --benchmark_format=json --benchmark_out=result.json
+        run: ./benchmark-obfuscxx.exe --benchmark_filter="BM_.*_(Low|Medium|High)" --benchmark_format=json --benchmark_out=result.json
 
       - name: Store
         uses: benchmark-action/github-action-benchmark@v1
