@@ -38,12 +38,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 49777778\ncpu: 13.18359369114467 ns\nthreads: 1"
           },
           {
-            "name": "BM_IntegerGet_High",
-            "value": 38.28194931639403,
-            "unit": "ns/iter",
-            "extra": "iterations: 18666667\ncpu: 38.50446359813458 ns\nthreads: 1"
-          },
-          {
             "name": "BM_FloatGet_Low",
             "value": 3.7228494576379227,
             "unit": "ns/iter",
@@ -54,12 +48,6 @@ window.BENCHMARK_DATA = {
             "value": 13.370466234953547,
             "unit": "ns/iter",
             "extra": "iterations: 49777778\ncpu: 13.18359369114467 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_FloatGet_High",
-            "value": 38.145835033112334,
-            "unit": "ns/iter",
-            "extra": "iterations: 18666667\ncpu: 38.50446359813458 ns\nthreads: 1"
           },
           {
             "name": "BM_StringGet_Low",
@@ -74,12 +62,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 20363636\ncpu: 32.22656307547434 ns\nthreads: 1"
           },
           {
-            "name": "BM_StringGet_High",
-            "value": 83.8468221496976,
-            "unit": "ns/iter",
-            "extra": "iterations: 7466667\ncpu: 83.70535340601101 ns\nthreads: 1"
-          },
-          {
             "name": "BM_WStringGet_Low",
             "value": 16.727687611198487,
             "unit": "ns/iter",
@@ -90,12 +72,6 @@ window.BENCHMARK_DATA = {
             "value": 34.70690106619579,
             "unit": "ns/iter",
             "extra": "iterations: 20363636\ncpu: 34.528460438008224 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_WStringGet_High",
-            "value": 84.04953125000146,
-            "unit": "ns/iter",
-            "extra": "iterations: 8960000\ncpu: 85.44921875 ns\nthreads: 1"
           },
           {
             "name": "BM_ArrayIteration_Low",
@@ -110,12 +86,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 497778\ncpu: 1286.9692915315663 ns\nthreads: 1"
           },
           {
-            "name": "BM_ArrayIteration_High",
-            "value": 3822.789620535616,
-            "unit": "ns/iter",
-            "extra": "iterations: 179200\ncpu: 3749.3024553571427 ns\nthreads: 1"
-          },
-          {
             "name": "BM_ArrayCopyTo_Low",
             "value": 122.88032142857372,
             "unit": "ns/iter",
@@ -128,12 +98,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 2800000\ncpu: 245.53571428571428 ns\nthreads: 1"
           },
           {
-            "name": "BM_ArrayCopyTo_High",
-            "value": 554.8949107142574,
-            "unit": "ns/iter",
-            "extra": "iterations: 1120000\ncpu: 544.0848214285714 ns\nthreads: 1"
-          },
-          {
             "name": "BM_ArrayGet_Low",
             "value": 3.71165838622927,
             "unit": "ns/iter",
@@ -144,12 +108,6 @@ window.BENCHMARK_DATA = {
             "value": 13.373403288512215,
             "unit": "ns/iter",
             "extra": "iterations: 49777778\ncpu: 13.18359369114467 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_ArrayGet_High",
-            "value": 38.25966360250468,
-            "unit": "ns/iter",
-            "extra": "iterations: 18666667\ncpu: 37.66741004165339 ns\nthreads: 1"
           }
         ]
       },
@@ -188,12 +146,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 49777778\ncpu: 13.18359369114467 ns\nthreads: 1"
           },
           {
-            "name": "BM_IntegerGet_High",
-            "value": 25.106040346691316,
-            "unit": "ns/iter",
-            "extra": "iterations: 26352941\ncpu: 24.902343916756767 ns\nthreads: 1"
-          },
-          {
             "name": "BM_FloatGet_Low",
             "value": 3.727126064773369,
             "unit": "ns/iter",
@@ -204,12 +156,6 @@ window.BENCHMARK_DATA = {
             "value": 13.426933198987584,
             "unit": "ns/iter",
             "extra": "iterations: 49777778\ncpu: 13.497488779029068 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_FloatGet_High",
-            "value": 25.15124285714267,
-            "unit": "ns/iter",
-            "extra": "iterations: 28000000\ncpu: 25.111607142857142 ns\nthreads: 1"
           },
           {
             "name": "BM_StringGet_Low",
@@ -224,12 +170,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 21333333\ncpu: 33.69140677642823 ns\nthreads: 1"
           },
           {
-            "name": "BM_StringGet_High",
-            "value": 58.90668750000471,
-            "unit": "ns/iter",
-            "extra": "iterations: 11200000\ncpu: 58.59375 ns\nthreads: 1"
-          },
-          {
             "name": "BM_WStringGet_Low",
             "value": 16.661289843787795,
             "unit": "ns/iter",
@@ -240,12 +180,6 @@ window.BENCHMARK_DATA = {
             "value": 35.02975958685233,
             "unit": "ns/iter",
             "extra": "iterations: 19478261\ncpu: 34.49358235830191 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_WStringGet_High",
-            "value": 58.735017857145515,
-            "unit": "ns/iter",
-            "extra": "iterations: 11200000\ncpu: 58.59375 ns\nthreads: 1"
           },
           {
             "name": "BM_ArrayIteration_Low",
@@ -260,12 +194,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 497778\ncpu: 1318.3587864469703 ns\nthreads: 1"
           },
           {
-            "name": "BM_ArrayIteration_High",
-            "value": 2463.5503571427566,
-            "unit": "ns/iter",
-            "extra": "iterations: 280000\ncpu: 2455.3571428571427 ns\nthreads: 1"
-          },
-          {
             "name": "BM_ArrayCopyTo_Low",
             "value": 123.64619642856464,
             "unit": "ns/iter",
@@ -278,12 +206,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 2800000\ncpu: 245.53571428571428 ns\nthreads: 1"
           },
           {
-            "name": "BM_ArrayCopyTo_High",
-            "value": 398.6596540178792,
-            "unit": "ns/iter",
-            "extra": "iterations: 1792000\ncpu: 392.36886160714283 ns\nthreads: 1"
-          },
-          {
             "name": "BM_ArrayGet_Low",
             "value": 3.73290856476233,
             "unit": "ns/iter",
@@ -294,12 +216,6 @@ window.BENCHMARK_DATA = {
             "value": 13.379307142857654,
             "unit": "ns/iter",
             "extra": "iterations: 56000000\ncpu: 13.113839285714286 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_ArrayGet_High",
-            "value": 25.10261785714566,
-            "unit": "ns/iter",
-            "extra": "iterations: 28000000\ncpu: 25.111607142857142 ns\nthreads: 1"
           }
         ]
       },
@@ -338,12 +254,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 56000000\ncpu: 12.276785714285714 ns\nthreads: 1"
           },
           {
-            "name": "BM_IntegerGet_High",
-            "value": 17.609175157226776,
-            "unit": "ns/iter",
-            "extra": "iterations: 37333333\ncpu: 17.578125156947547 ns\nthreads: 1"
-          },
-          {
             "name": "BM_FloatGet_Low",
             "value": 2.890768659424305,
             "unit": "ns/iter",
@@ -354,12 +264,6 @@ window.BENCHMARK_DATA = {
             "value": 10.11567718698284,
             "unit": "ns/iter",
             "extra": "iterations: 74666667\ncpu: 10.253906204223632 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_FloatGet_High",
-            "value": 68.65443080358143,
-            "unit": "ns/iter",
-            "extra": "iterations: 8960000\ncpu: 68.01060267857143 ns\nthreads: 1"
           },
           {
             "name": "BM_StringGet_Low",
@@ -374,12 +278,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 28000000\ncpu: 24.553571428571427 ns\nthreads: 1"
           },
           {
-            "name": "BM_StringGet_High",
-            "value": 155.39265624998475,
-            "unit": "ns/iter",
-            "extra": "iterations: 4480000\ncpu: 156.94754464285714 ns\nthreads: 1"
-          },
-          {
             "name": "BM_WStringGet_Low",
             "value": 10.49337450672755,
             "unit": "ns/iter",
@@ -390,12 +288,6 @@ window.BENCHMARK_DATA = {
             "value": 24.848071428574972,
             "unit": "ns/iter",
             "extra": "iterations: 28000000\ncpu: 25.111607142857142 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_WStringGet_High",
-            "value": 193.69059765093525,
-            "unit": "ns/iter",
-            "extra": "iterations: 3733333\ncpu: 192.52233861806596 ns\nthreads: 1"
           },
           {
             "name": "BM_ArrayIteration_Low",
@@ -410,12 +302,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 560000\ncpu: 1255.580357142857 ns\nthreads: 1"
           },
           {
-            "name": "BM_ArrayIteration_High",
-            "value": 6864.47946428562,
-            "unit": "ns/iter",
-            "extra": "iterations: 112000\ncpu: 6975.446428571428 ns\nthreads: 1"
-          },
-          {
             "name": "BM_ArrayCopyTo_Low",
             "value": 92.17886642057451,
             "unit": "ns/iter",
@@ -428,12 +314,6 @@ window.BENCHMARK_DATA = {
             "extra": "iterations: 4977778\ncpu: 163.22543914172147 ns\nthreads: 1"
           },
           {
-            "name": "BM_ArrayCopyTo_High",
-            "value": 588.6788392857056,
-            "unit": "ns/iter",
-            "extra": "iterations: 1120000\ncpu: 571.9866071428571 ns\nthreads: 1"
-          },
-          {
             "name": "BM_ArrayGet_Low",
             "value": 4.446558881942645,
             "unit": "ns/iter",
@@ -444,12 +324,6 @@ window.BENCHMARK_DATA = {
             "value": 10.10329950846838,
             "unit": "ns/iter",
             "extra": "iterations: 74666667\ncpu: 10.253906204223632 ns\nthreads: 1"
-          },
-          {
-            "name": "BM_ArrayGet_High",
-            "value": 36.41242970692182,
-            "unit": "ns/iter",
-            "extra": "iterations: 18666667\ncpu: 35.99330292869102 ns\nthreads: 1"
           }
         ]
       },
