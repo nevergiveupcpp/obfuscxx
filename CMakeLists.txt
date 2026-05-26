@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(obfuscxx VERSION 1.3.5 LANGUAGES CXX)
+project(obfuscxx VERSION 1.3.6 LANGUAGES CXX)
 
 add_library(obfuscxx INTERFACE)
 add_library(obfuscxx::obfuscxx ALIAS obfuscxx)
