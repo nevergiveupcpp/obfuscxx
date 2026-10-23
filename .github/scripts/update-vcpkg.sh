@@ -25,7 +25,7 @@ hash=${hash%% *}
 portfile="$VCPKG_ROOT/ports/obfuscxx/portfile.cmake"
 pattern='^([[:blank:]]*SHA512[[:blank:]]+)[[:xdigit:]]{128}([[:space:]]*)$'
 
-sed -Ei "s/$pattern/\1${hash}\2/" "$portfile"
+sed -Ei "s/[[:space:]]+$//; s/$pattern/\1${hash}\2/" "$portfile"
 
 manifest="$VCPKG_ROOT/ports/obfuscxx/vcpkg.json"
 
