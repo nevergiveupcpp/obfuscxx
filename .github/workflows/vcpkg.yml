@@ -1,0 +1,145 @@
+name: Update Vcpkg
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  TAG: ${{ inputs.tag }}
+  VCPKG_BRANCH: update/obfuscxx-${{ inputs.tag }}
+
+jobs:
+  vcpkg:
+    name: Update Vcpkg Port
+    runs-on: ubuntu-latest
+
+    outputs:
+      base: ${{ steps.commit.outputs.base }}
+
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: vcpkg
+
+    steps:
+      - name: Check published release
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          draft=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')
+          if [[ $draft == true ]]; then
+            echo "Release $TAG is still a draft" >&2
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          path: project
+          persist-credentials: false
+
+      - name: Checkout vcpkg
+        uses: actions/checkout@v5
+        with:
+          repository: microsoft/vcpkg
+          ref: master
+          fetch-depth: 0
+          path: vcpkg
+          persist-credentials: false
+
+      - name: Update port version and source hash
+        id: port
+        run: bash "$GITHUB_WORKSPACE/project/.github/scripts/update-vcpkg.sh"
+
+      - name: Bootstrap vcpkg
+        if: steps.port.outputs.status == 'ok'
+        run: ./bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Update version database
+        id: commit
+        if: steps.port.outputs.status == 'ok'
+        run: |
+          ./vcpkg format-manifest ports/obfuscxx/vcpkg.json
+          git config user.name "nevergiveupcpp"
+          git config user.email "nevergiveupcxx@gmail.com"
+          git switch --create "$VCPKG_BRANCH"
+          git add ports/obfuscxx
+          git commit -m "[obfuscxx] Update to ${TAG#v}"
+          ./vcpkg x-add-version obfuscxx
+          git add versions/baseline.json versions/o-/obfuscxx.json
+          git commit --amend --no-edit
+          echo "base=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+          git bundle create "$RUNNER_TEMP/vcpkg.bundle" "$VCPKG_BRANCH" "^HEAD^"
+
+      - name: Upload prepared update
+        if: steps.port.outputs.status == 'ok'
+        uses: actions/upload-artifact@v6
+        with:
+          name: vcpkg-update
+          path: ${{ runner.temp }}/vcpkg.bundle
+          if-no-files-found: error
+
+  publish:
+    name: Publish Vcpkg Port
+    needs: vcpkg
+    runs-on: ubuntu-latest
+
+    env:
+      VCPKG_FORK: ${{ github.repository_owner }}/vcpkg
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: vcpkg
+
+    steps:
+      - name: Checkout vcpkg base
+        uses: actions/checkout@v5
+        with:
+          repository: microsoft/vcpkg
+          ref: ${{ needs.vcpkg.outputs.base }}
+          fetch-depth: 0
+          path: vcpkg
+          persist-credentials: false
+
+      - name: Download prepared update
+        uses: actions/download-artifact@v7
+        with:
+          name: vcpkg-update
+          path: ${{ runner.temp }}/vcpkg-update
+
+      - name: Import prepared commit
+        run: |
+          git fetch --no-tags "$RUNNER_TEMP/vcpkg-update/vcpkg.bundle" "refs/heads/$VCPKG_BRANCH"
+
+      - name: Open vcpkg pull request
+        env:
+          GH_TOKEN: ${{ secrets.VCPKG_PR_TOKEN }}
+        run: |
+          : "${GH_TOKEN:?Set the VCPKG_PR_TOKEN repository secret}"
+          gh auth setup-git --hostname github.com
+          git remote add fork "https://github.com/${VCPKG_FORK}.git"
+          git push fork "FETCH_HEAD:refs/heads/${VCPKG_BRANCH}"
+
+          gh pr create \
+            --repo microsoft/vcpkg \
+            --base master \
+            --head "${VCPKG_FORK%%/*}:${VCPKG_BRANCH}" \
+            --title "[obfuscxx] Update to ${TAG#v}" \
+            --body '- [x] Changes comply with the [maintainer guide](https://github.com/microsoft/vcpkg-docs/blob/main/vcpkg/contributing/maintainer-guide.md).
+          - [x] SHA512s are updated for each updated download.
+          - [x] The "supports" clause reflects platforms that may be fixed by this new version, or no changes were necessary.
+          - [x] Any fixed [CI baseline](https://github.com/microsoft/vcpkg/blob/master/scripts/ci.baseline.txt) and [CI feature baseline](https://github.com/microsoft/vcpkg/blob/master/scripts/ci.feature.baseline.txt) entries are removed from that file, or no entries needed to be changed.
+          - [x] All patch files in the port are applied and succeed.
+          - [x] The version database is updated by running `./vcpkg x-add-version obfuscxx` and committing the result.
+          - [x] Exactly one version is added in each modified versions file.'
