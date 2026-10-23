@@ -1,0 +1,86 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    env:
+      BENCHMARK_BIN_DIR: tests/benchmark/build/msvc-x64/Release
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set VCPKG_ROOT
+        shell: bash
+        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+      - name: Install Google Benchmark
+        run: vcpkg install benchmark:x64-windows
+
+      - name: Configure
+        working-directory: tests/benchmark
+        run: cmake --preset msvc-x64
+
+      - name: Build
+        working-directory: tests/benchmark
+        run: cmake --build --preset msvc-x64 --config Release --parallel
+
+      - name: Run
+        working-directory: ${{ env.BENCHMARK_BIN_DIR }}
+        shell: bash
+        run: |
+          ./benchmark-obfuscxx.exe \
+            --benchmark_filter="BM_.*_(Low|Medium|High)" \
+            --benchmark_format=json \
+            --benchmark_out=result.json
+
+      - name: Upload benchmark result
+        uses: actions/upload-artifact@v6
+        with:
+          name: benchmark-result
+          path: ${{ env.BENCHMARK_BIN_DIR }}/result.json
+          if-no-files-found: error
+
+  store:
+    name: Store Benchmark Results
+    needs: benchmark
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Download benchmark result
+        uses: actions/download-artifact@v7
+        with:
+          name: benchmark-result
+          path: artifacts
+
+      - name: Store
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: Benchmark
+          tool: googlecpp
+          output-file-path: artifacts/result.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          comment-on-alert: false
+          alert-threshold: '200%'
+          fail-on-alert: true
