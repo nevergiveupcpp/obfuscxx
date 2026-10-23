@@ -1,7 +1,7 @@
 {
   "name": "benchmark-obfuscxx",
   "version": "1.0.0",
-  "builtin-baseline": "34823ada10080ddca99b60e85f80f55e18a44eea",
+  "builtin-baseline": "8c5c88430ac864cf4fe8de4be61f69f003d23ffe",
   "dependencies": [
     "benchmark"
   ]
