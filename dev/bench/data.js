@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792772395286,
+  "lastUpdate": 1792773823615,
   "repoUrl": "https://github.com/nevergiveupcpp/obfuscxx",
   "entries": {
     "Benchmark": [
@@ -1602,6 +1602,156 @@ window.BENCHMARK_DATA = {
             "value": 56.1914375000023,
             "unit": "ns/iter",
             "extra": "iterations: 11200000\ncpu: 55.80357142857143 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "nevergiveupcxx@gmail.com",
+            "name": "nevergiveupcpp",
+            "username": "nevergiveupcpp"
+          },
+          "committer": {
+            "email": "nevergiveupcxx@gmail.com",
+            "name": "nevergiveupcpp",
+            "username": "nevergiveupcpp"
+          },
+          "distinct": true,
+          "id": "d5766d88f242686c286ddad5098efe403011d481",
+          "message": "fix: normalize vcpkg whitespace",
+          "timestamp": "2026-10-23T18:41:21+02:00",
+          "tree_id": "5d9dbaf6f169109cd4d78cd42a41a5c29c800a4b",
+          "url": "https://github.com/nevergiveupcpp/obfuscxx/commit/d5766d88f242686c286ddad5098efe403011d481"
+        },
+        "date": 1792773823104,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "BM_IntegerGet_Low",
+            "value": 3.769871093749964,
+            "unit": "ns/iter",
+            "extra": "iterations: 179200000\ncpu: 3.749302455357143 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_IntegerGet_Medium",
+            "value": 13.639701785714513,
+            "unit": "ns/iter",
+            "extra": "iterations: 56000000\ncpu: 13.671875 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_IntegerGet_High",
+            "value": 54.69295535714228,
+            "unit": "ns/iter",
+            "extra": "iterations: 11200000\ncpu: 53.013392857142854 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_FloatGet_Low",
+            "value": 3.7274394576297705,
+            "unit": "ns/iter",
+            "extra": "iterations: 186666667\ncpu: 3.766741064702248 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_FloatGet_Medium",
+            "value": 13.601212500000363,
+            "unit": "ns/iter",
+            "extra": "iterations: 56000000\ncpu: 13.671875 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_FloatGet_High",
+            "value": 54.27238392856891,
+            "unit": "ns/iter",
+            "extra": "iterations: 11200000\ncpu: 54.408482142857146 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_StringGet_Low",
+            "value": 16.31159151785815,
+            "unit": "ns/iter",
+            "extra": "iterations: 44800000\ncpu: 16.392299107142858 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_StringGet_Medium",
+            "value": 34.91734195367789,
+            "unit": "ns/iter",
+            "extra": "iterations: 19478261\ncpu: 34.49358235830191 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_StringGet_High",
+            "value": 117.57261975122367,
+            "unit": "ns/iter",
+            "extra": "iterations: 4977778\ncpu: 116.14117785084028 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_WStringGet_Low",
+            "value": 16.782532923330642,
+            "unit": "ns/iter",
+            "extra": "iterations: 40727273\ncpu: 16.880580244103257 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_WStringGet_Medium",
+            "value": 35.7373015310239,
+            "unit": "ns/iter",
+            "extra": "iterations: 20363636\ncpu: 36.06305867969748 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_WStringGet_High",
+            "value": 117.75848214285693,
+            "unit": "ns/iter",
+            "extra": "iterations: 5600000\ncpu: 117.1875 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayIteration_Low",
+            "value": 364.1687707218105,
+            "unit": "ns/iter",
+            "extra": "iterations: 1947826\ncpu: 360.97936879372185 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayIteration_Medium",
+            "value": 1342.2945570113125,
+            "unit": "ns/iter",
+            "extra": "iterations: 497778\ncpu: 1286.9692915315663 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayIteration_High",
+            "value": 5413.034999999695,
+            "unit": "ns/iter",
+            "extra": "iterations: 100000\ncpu: 5468.75 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayCopyTo_Low",
+            "value": 122.63421428571064,
+            "unit": "ns/iter",
+            "extra": "iterations: 5600000\ncpu: 122.76785714285714 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayCopyTo_Medium",
+            "value": 246.88935714284608,
+            "unit": "ns/iter",
+            "extra": "iterations: 2800000\ncpu: 245.53571428571428 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayCopyTo_High",
+            "value": 760.8302678571631,
+            "unit": "ns/iter",
+            "extra": "iterations: 1120000\ncpu: 767.2991071428571 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayGet_Low",
+            "value": 3.9353582589285456,
+            "unit": "ns/iter",
+            "extra": "iterations: 179200000\ncpu: 4.010881696428571 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayGet_Medium",
+            "value": 13.446877841755805,
+            "unit": "ns/iter",
+            "extra": "iterations: 49777778\ncpu: 13.18359369114467 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_ArrayGet_High",
+            "value": 54.049179999998394,
+            "unit": "ns/iter",
+            "extra": "iterations: 10000000\ncpu: 54.6875 ns\nthreads: 1"
           }
         ]
       }
