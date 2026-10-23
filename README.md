@@ -19,7 +19,7 @@ XTEA was chosen for several reasons. The primary one is its solid cryptographic 
 When working with scalar data, SIMD instructions are used not for vectorization, but to complicate static analysis, data extraction, and emulation-based deobfuscation. For vector data (arrays, strings), SIMD is used to its full potential, enabling parallel decryption without compromising protection quality.
 
 ### SIMD platform support
-The library supports multiple SIMD instruction sets depending on the target architecture and compiler flags. On MSVC, SSE2 is used as a fallback by default, this ensures compatibility with both older and newer processors. If support for older processors is not required, define the OBFUSCXX_MSVC_FORCE_AVX2 macro.
+The library supports multiple SIMD instruction sets depending on the target architecture and compiler flags. On MSVC, SSE2 is used as a fallback by default, this ensures compatibility with both older and newer processors. See [Configuration](#configuration) to force AVX2 on MSVC.
 
 ## Decompilation view
 The screenshots show only a small portion of the int main() function. In reality, the function can grow to around 250 lines depending on the compiler.
@@ -35,8 +35,6 @@ The screenshots show only a small portion of the int main() function. In reality
 
 ## Installation
 
-> To disable the SSE2 fallback on MSVC, define `OBFUSCXX_MSVC_FORCE_AVX2` before including the header or in your CMakeLists.txt.
-
 ### Single header
 Just add the `include/` directory to your include path and use `#include <obfuscxx/obfuscxx.h>`
 
@@ -47,9 +45,21 @@ find_package(obfuscxx CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE obfuscxx::obfuscxx)
 ```
 
+## Configuration
+
+Define the following preprocessor macros before including `<obfuscxx/obfuscxx.h>` or via CMake. Leave them undefined to use the default behavior.
+
+| Macro | Description |
+|-------|-------------|
+| `OBFUSCXX_DISABLE` | Disables obfuscation while preserving the public API. Values are stored unencrypted |
+| `OBFUSCXX_DISABLE_WARNS` | Suppresses the library’s warnings |
+| `OBFUSCXX_MSVC_FORCE_AVX2` | Forces AVX2 decryption on MSVC without the SSE2 fallback. Requires an AVX2-capable CPU |
+
 ## Examples
 ### Basic
 ```cpp
+#include <obfuscxx/obfuscxx.h>
+
 int main() {
     using namespace ngu;
     

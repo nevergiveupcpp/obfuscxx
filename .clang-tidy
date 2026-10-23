@@ -6,10 +6,25 @@ Checks: >
   -clang-diagnostic-gnu-string-literal-operator-template
 
 CheckOptions:
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+
   - key: readability-identifier-naming.ClassCase
     value: lower_case
   - key: readability-identifier-naming.StructCase
     value: lower_case
+  - key: readability-identifier-naming.EnumCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumConstantCase
+    value: lower_case
+
+  - key: readability-identifier-naming.TypeAliasCase
+    value: lower_case
+  - key: readability-identifier-naming.TypeAliasIgnoredRegexp
+    value: '^[A-Z]$'
+
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
 
   - key: readability-identifier-naming.FunctionCase
     value: lower_case
@@ -37,20 +52,3 @@ CheckOptions:
     value: '_'
   - key: readability-identifier-naming.ConstantMemberIgnoredRegexp
     value: '^[A-Z][A-Z0-9_]*$'
-
-  - key: readability-identifier-naming.EnumConstantCase
-    value: lower_case
-
-  - key: readability-identifier-naming.EnumCase
-    value: lower_case
-
-  - key: readability-identifier-naming.TemplateParameterCase
-    value: CamelCase
-
-  - key: readability-identifier-naming.NamespaceCase
-    value: lower_case
-
-  - key: readability-identifier-naming.TypeAliasCase
-    value: lower_case
-  - key: readability-identifier-naming.TypeAliasIgnoredRegexp
-    value: '^[A-Z]$'

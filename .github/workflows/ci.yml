@@ -2,15 +2,18 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
+
   pull_request:
-    branches: ["main"]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   unittests:
-    name: ${{ matrix.name }}
+    name: Run Unit Tests / ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    if: github.event_name == 'pull_request'
 
     strategy:
       fail-fast: false
@@ -48,7 +51,9 @@ jobs:
             vcpkg_triplet: arm64-osx
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set VCPKG_ROOT
         shell: bash
@@ -63,59 +68,21 @@ jobs:
 
       - name: Build
         working-directory: tests/unittest
-        run: cmake --build --preset ${{ matrix.preset }} --config Release
+        run: cmake --build --preset ${{ matrix.preset }} --config Release --parallel
 
       - name: Test
         working-directory: tests/unittest/build/${{ matrix.preset }}
         run: ctest --build-config Release --output-on-failure
 
-  benchmark:
-    name: Benchmark
-    runs-on: windows-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    env:
-      BENCHMARK_BIN_DIR: tests/benchmark/build/msvc-x64/Release
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set VCPKG_ROOT
-        shell: bash
-        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
-
-      - name: Install Google Benchmark
-        run: vcpkg install benchmark:x64-windows
-
-      - name: Configure
-        working-directory: tests/benchmark
-        run: cmake --preset msvc-x64
-
-      - name: Build
-        working-directory: tests/benchmark
-        run: cmake --build --preset msvc-x64 --config Release
-
-      - name: Run
-        working-directory: ${{ env.BENCHMARK_BIN_DIR }}
-        run: ./benchmark-obfuscxx.exe --benchmark_filter="BM_.*_(Low|Medium|High)" --benchmark_format=json --benchmark_out=result.json
-
-      - name: Store
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: Benchmark
-          tool: googlecpp
-          output-file-path: ${{ env.BENCHMARK_BIN_DIR }}/result.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
-          comment-on-alert: false
-          alert-threshold: '200%'
-          fail-on-alert: true
-
   clang-format:
-    name: Clang Format
+    name: Run Clang Format
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
       - name: Install Clang-Format 22
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -123,17 +90,21 @@ jobs:
           sudo ./llvm.sh 22
           sudo apt-get update
           sudo apt-get install -y clang-format-22
+
       - name: Check formatting
         run: |
           find include \( -name "*.h" -o -name "*.cpp" \) | \
           xargs clang-format-22 --dry-run --Werror
 
   clang-tidy:
-    name: Clang Tidy
+    name: Run Clang Tidy
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
       - name: Install Clang-Tidy 19
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -141,15 +112,16 @@ jobs:
           sudo ./llvm.sh 19
           sudo apt-get update
           sudo apt-get install -y clang-tidy-19
+
       - name: Check tidy
         run: |
           find include \( -name "*.h" -o -name "*.cpp" \) | \
           xargs -I{} clang-tidy-19 {} --header-filter="include/.*" -- -x c++ -std=c++20 -I include
 
   all-checks:
-    name: All Checks
+    name: Check Results
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     needs: [unittests, clang-format, clang-tidy]
+
     steps:
       - run: echo "All checks passed"

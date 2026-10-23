@@ -28,6 +28,7 @@ using max_align_t = double;
 
 #include <type_traits>
 
+#if !defined(OBFUSCXX_DISABLE)
 #if defined(__aarch64__) || defined(_M_ARM64) || defined(__ARM_NEON)
 #include <arm_neon.h>
 #elif defined(_WIN32)
@@ -52,6 +53,7 @@ using max_align_t = double;
 #elif defined(_MSC_VER)
 #define OBFUSCXX_VOLATILE volatile
 #endif
+#endif
 
 #if defined(__clang__) || defined(__GNUC__)
 #define OBFUSCXX_FORCEINLINE __attribute__((always_inline)) inline
@@ -59,6 +61,7 @@ using max_align_t = double;
 #define OBFUSCXX_FORCEINLINE __forceinline
 #endif
 
+#if !defined(OBFUSCXX_DISABLE)
 #if defined(_KERNEL_MODE) || defined(_WIN64_DRIVER)
 #define _mm256_extract_epi32(vec, idx) (((int32_t*)&(vec))[(idx)])
 #endif
@@ -74,8 +77,9 @@ using max_align_t = double;
 #define OBFUSCXX_MEM_BARRIER(...) _ReadWriteBarrier();
 #define OBFUSCXX_MEM_BARRIER_VEC(v0, v1, sum) _ReadWriteBarrier();
 #endif
+#endif
 
-#ifndef OBFUSCXX_DISABLE_WARNS
+#if !defined(OBFUSCXX_DISABLE_WARNS) && !defined(OBFUSCXX_DISABLE)
 #define OBFUSCXX_RUNTIME_WARNING                                                                                       \
     [[deprecated(                                                                                                      \
         "OBFUSCXX: Runtime set() uses encrypt method without SIMD obfuscation. For better protection, "                \
@@ -151,6 +155,7 @@ namespace ngu {
         }
     } // namespace detail
 
+#if !defined(OBFUSCXX_DISABLE)
     template<typename Vec> struct simd;
 
 #if defined(__aarch64__) || defined(_M_ARM64)
@@ -239,6 +244,7 @@ namespace ngu {
     };
 #endif
 #endif
+#endif
 
 #define OBFUSCXX_HASH(s) ngu::detail::hash_compile_time(s)
 #define OBFUSCXX_HASH_RT(s) ngu::detail::hash_runtime(s)
@@ -283,15 +289,16 @@ namespace ngu {
 
         static constexpr std::size_t type_size = std::is_array_v<RawT> ? std::extent_v<RawT> : 1;
 
+        struct passkey {
+            explicit passkey() = default;
+        };
+
+#if !defined(OBFUSCXX_DISABLE)
         static constexpr std::size_t simd_alignment = OBFUSCXX_HAS_AVX2 ? 32 : 16;
         static constexpr std::size_t storage_multiple = OBFUSCXX_HAS_AVX2 ? 8 : 4;
         static constexpr std::size_t storage_alignment = is_array ? simd_alignment : alignof(std::uint64_t);
         static constexpr std::size_t storage_size =
             is_array ? detail::align_up(type_size, storage_multiple) : type_size;
-
-        struct passkey {
-            explicit passkey() = default;
-        };
 
         static constexpr std::uint64_t seed{Entropy};
         static constexpr std::uint64_t iv[8] = {
@@ -559,116 +566,118 @@ namespace ngu {
             return false;
 #endif
         }
+#endif
+
+        constexpr void store(type value, std::size_t i) {
+#if defined(OBFUSCXX_DISABLE)
+            storage_[i] = value;
+#else
+            storage_[i] = encrypt(value);
+#endif
+        }
 
     public:
         explicit consteval obfuscxx(passkey) {
+#if !defined(OBFUSCXX_DISABLE)
             for (std::size_t i{}; i < type_size; ++i) {
                 storage_[i] = seed ^ iv[i & iv_size];
             }
+#endif
         }
 
         explicit consteval obfuscxx(type val) : obfuscxx(passkey{}) {
-            storage_[0] = encrypt(val);
+            store(val, 0);
         }
 
         explicit consteval obfuscxx(type (&arr)[type_size]) : obfuscxx(passkey{}) {
             for (std::size_t i{}; i < type_size; ++i) {
-                storage_[i] = encrypt(arr[i]);
+                store(arr[i], i);
             }
         }
 
         explicit consteval obfuscxx(const type (&arr)[type_size]) : obfuscxx(passkey{}) {
             for (std::size_t i{}; i < type_size; ++i) {
-                storage_[i] = encrypt(arr[i]);
+                store(arr[i], i);
             }
         }
 
         consteval obfuscxx(const std::initializer_list<type>& list) : obfuscxx(passkey{}) {
             for (std::size_t i{}; const auto& v : list) {
-                storage_[i++] = encrypt(v);
+                store(v, i++);
             }
         }
 
-        OBFUSCXX_FORCEINLINE type get() const
-            requires is_single
-        {
+        OBFUSCXX_FORCEINLINE type get() const requires is_single {
+#if defined(OBFUSCXX_DISABLE)
+            return storage_[0];
+#else
             volatile const std::uint64_t* ptr = &storage_[0];
             std::uint64_t val = *ptr;
             return decrypt(val);
+#endif
         }
 
-        OBFUSCXX_FORCEINLINE type get(const std::size_t i) const
-            requires is_array
-        {
+        OBFUSCXX_FORCEINLINE type get(const std::size_t i) const requires is_array {
+#if defined(OBFUSCXX_DISABLE)
+            return storage_[i];
+#else
             volatile const std::uint64_t* ptr = &storage_[i];
             std::uint64_t val = *ptr;
             return decrypt(val);
+#endif
         }
 
-        OBFUSCXX_FORCEINLINE void copy_to(type* out, const std::size_t count) const
-            requires is_array
-        {
+        OBFUSCXX_FORCEINLINE void copy_to(type* out, const std::size_t count) const requires is_array {
             std::size_t effective_count = (count < type_size) ? count : type_size;
+#if defined(OBFUSCXX_DISABLE)
+            for (std::size_t i{}; i < effective_count; ++i) {
+                out[i] = storage_[i];
+            }
+#else
             decrypt_vectorized(storage_, out, effective_count);
+#endif
         }
 
-        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(type val)
-            requires is_single
-        {
-            storage_[0] = encrypt(val);
+        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(type val) requires is_single {
+            store(val, 0);
         }
 
-        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(type val, const std::size_t i)
-            requires is_array
-        {
-            storage_[i] = encrypt(val);
+        OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(type val, const std::size_t i) requires is_array {
+            store(val, i);
         }
 
         OBFUSCXX_RUNTIME_WARNING OBFUSCXX_FORCEINLINE void set(const std::initializer_list<type>& list)
-            requires is_array
-        {
+            requires is_array {
             for (std::size_t i{}; const auto& val : list) {
                 if (i < type_size) {
-                    storage_[i++] = encrypt(val);
+                    store(val, i++);
                 }
             }
         }
 
-        OBFUSCXX_FORCEINLINE type operator()() const
-            requires is_single
-        {
+        OBFUSCXX_FORCEINLINE type operator()() const requires is_single {
             return get();
         }
 
-        OBFUSCXX_FORCEINLINE type operator[](const std::size_t i) const
-            requires is_array
-        {
+        OBFUSCXX_FORCEINLINE type operator[](const std::size_t i) const requires is_array {
             return get(i);
         }
 
-        OBFUSCXX_FORCEINLINE obfuscxx& operator=(type val)
-            requires is_single
-        {
+        OBFUSCXX_FORCEINLINE obfuscxx& operator=(type val) requires is_single {
             set(val);
             return *this;
         }
 
-        OBFUSCXX_FORCEINLINE obfuscxx& operator=(const std::initializer_list<type>& list)
-            requires is_array
-        {
+        OBFUSCXX_FORCEINLINE obfuscxx& operator=(const std::initializer_list<type>& list) requires is_array {
             set(list);
             return *this;
         }
 
-        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator==(const rebind<E>& rhs) const
-            requires is_single
-        {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator==(const rebind<E>& rhs) const requires is_single {
             return get() == rhs.get();
         }
 
-        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator==(const rebind<E>& rhs) const
-            requires is_array
-        {
+        template<std::uint64_t E> OBFUSCXX_FORCEINLINE bool operator==(const rebind<E>& rhs) const requires is_array {
             for (std::size_t i{}; i < type_size; ++i) {
                 if (get(i) != rhs.get(i)) {
                     return false;
@@ -681,9 +690,7 @@ namespace ngu {
             return !(*this == rhs);
         }
 
-        OBFUSCXX_FORCEINLINE operator type() const
-            requires is_single
-        {
+        OBFUSCXX_FORCEINLINE operator type() const requires is_single {
             return get();
         }
 
@@ -712,40 +719,32 @@ namespace ngu {
         }
 
         template<std::uint64_t E> OBFUSCXX_FORCEINLINE type operator*(const rebind<E>& rhs) const
-            requires(!is_single_pointer)
-        {
+            requires(!is_single_pointer) {
             return get() * rhs.get();
         }
 
         template<std::uint64_t E> OBFUSCXX_FORCEINLINE type operator/(const rebind<E>& rhs) const
-            requires(!is_single_pointer)
-        {
+            requires(!is_single_pointer) {
             return get() / rhs.get();
         }
 
         template<std::uint64_t E> OBFUSCXX_FORCEINLINE obfuscxx& operator+=(const rebind<E>& rhs)
-            requires(!is_single_pointer)
-        {
+            requires(!is_single_pointer) {
             set(get() + rhs.get());
             return *this;
         }
 
         template<std::uint64_t E> OBFUSCXX_FORCEINLINE obfuscxx& operator-=(const rebind<E>& rhs)
-            requires(!is_single_pointer)
-        {
+            requires(!is_single_pointer) {
             set(get() - rhs.get());
             return *this;
         }
 
-        OBFUSCXX_FORCEINLINE type operator->()
-            requires is_single_pointer
-        {
+        OBFUSCXX_FORCEINLINE type operator->() requires is_single_pointer {
             return get();
         }
 
-        OBFUSCXX_FORCEINLINE type& operator*()
-            requires is_single_pointer
-        {
+        OBFUSCXX_FORCEINLINE type& operator*() requires is_single_pointer {
             return *get();
         }
 
@@ -770,16 +769,14 @@ namespace ngu {
             }
         };
 
-        iterator begin() const
-            requires is_array
-        {
+        iterator begin() const requires is_array {
             return {this, 0};
         }
-        iterator end() const
-            requires is_array
-        {
+
+        iterator end() const requires is_array {
             return {this, type_size};
         }
+
         static constexpr std::size_t size() {
             return type_size;
         }
@@ -790,14 +787,10 @@ namespace ngu {
             static constexpr bool is_wchar = std::is_same_v<CharT, wchar_t> || std::is_same_v<CharT, const wchar_t>;
 
         public:
-            operator const char*() const
-                requires is_char
-            {
+            operator const char*() const requires is_char {
                 return data;
             }
-            operator const wchar_t*() const
-                requires is_wchar
-            {
+            operator const wchar_t*() const requires is_wchar {
                 return data;
             }
 
@@ -844,9 +837,7 @@ namespace ngu {
             ArrayT data[N];
         };
 
-        OBFUSCXX_FORCEINLINE string_copy<type, type_size> to_string() const
-            requires(is_char || is_wchar)
-        {
+        OBFUSCXX_FORCEINLINE string_copy<type, type_size> to_string() const requires(is_char || is_wchar) {
             string_copy<type, type_size> result{};
             if constexpr (is_array) {
                 copy_to(result.data, type_size);
@@ -856,16 +847,18 @@ namespace ngu {
             return result;
         }
 
-        OBFUSCXX_FORCEINLINE array_copy<type, type_size> to_array() const
-            requires(is_array)
-        {
+        OBFUSCXX_FORCEINLINE array_copy<type, type_size> to_array() const requires(is_array) {
             array_copy<type, type_size> result{};
             copy_to(result.data, type_size);
             return result;
         }
 
     private:
+#if defined(OBFUSCXX_DISABLE)
+        std::remove_cv_t<type> storage_[type_size]{};
+#else
         alignas(storage_alignment) OBFUSCXX_VOLATILE std::uint64_t storage_[storage_size]{};
+#endif
     };
 } // namespace ngu
 
