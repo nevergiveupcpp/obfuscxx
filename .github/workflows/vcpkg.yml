@@ -1,4 +1,4 @@
-name: Update Vcpkg
+name: Update vcpkg
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ env:
 
 jobs:
   vcpkg:
-    name: Update Vcpkg Port
+    name: Update vcpkg Port
     runs-on: ubuntu-latest
 
     outputs:
@@ -90,7 +90,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    name: Publish Vcpkg Port
+    name: Publish vcpkg Port
     needs: vcpkg
     runs-on: ubuntu-latest
 

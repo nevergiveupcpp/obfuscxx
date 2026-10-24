@@ -19,7 +19,8 @@ jobs:
       BENCHMARK_BIN_DIR: tests/benchmark/build/msvc-x64/Release
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -38,7 +39,7 @@ jobs:
         working-directory: tests/benchmark
         run: cmake --build --preset msvc-x64 --config Release --parallel
 
-      - name: Run
+      - name: Run benchmarks
         working-directory: ${{ env.BENCHMARK_BIN_DIR }}
         shell: bash
         run: |
@@ -63,7 +64,8 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -73,7 +75,7 @@ jobs:
           name: benchmark-result
           path: artifacts
 
-      - name: Store
+      - name: Store benchmark results
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: Benchmark

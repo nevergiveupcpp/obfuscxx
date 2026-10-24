@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false
+      fail-fast: true
 
       matrix:
         include:
@@ -51,7 +51,8 @@ jobs:
             vcpkg_triplet: arm64-osx
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -79,11 +80,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - name: Install Clang-Format 22
+      - name: Install clang-format 22
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
@@ -101,11 +103,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - name: Install Clang-Tidy 19
+      - name: Install clang-tidy 19
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
@@ -113,7 +116,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-tidy-19
 
-      - name: Check tidy
+      - name: Run clang-tidy
         run: |
           find include \( -name "*.h" -o -name "*.cpp" \) | \
           xargs -I{} clang-tidy-19 {} --header-filter="include/.*" -- -x c++ -std=c++20 -I include
