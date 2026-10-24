@@ -148,8 +148,8 @@ int main() {
 ## Building tests and benchmarks
 1. Install `vcpkg` and set `VCPKG_ROOT` environment variable
 2. Fetch baseline: `cd $VCPKG_ROOT && git fetch origin 34823ada10080ddca99b60e85f80f55e18a44eea`
-3. Configure: `cmake --preset <compiler>` (MSVC/Clang/GCC)
-4. Build: `cmake --build --preset <compiler>` (--config Release/Debug)
+3. Configure: `cmake --preset <preset>`.
+4. Build: `cmake --build --preset <preset> --config <configuration> --parallel`.
 
 ## Requirements
 - C++20 or later
